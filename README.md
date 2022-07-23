@@ -5,7 +5,7 @@ CLI tool to get the details for the calendar
 ### Installation
 
 ```
-go install github.com/samit22/calendar@latest
+go install github.com/samit22/calendarN@latest
 ```
 
 ### Commands
@@ -42,3 +42,5 @@ go install github.com/samit22/calendar@latest
 ### Requirement
 
 - Go 1.18+
+
+### Contributing

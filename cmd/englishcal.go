@@ -39,6 +39,7 @@ var englishcalCmd = &cobra.Command{
 	Long: `It generated english calendar.
 By default it generated calendar for current month.
 You can also pass arugment in format yyyy-mm`,
+	PostRun: PostRunMsg,
 	Run: func(cmd *cobra.Command, args []string) {
 		var argument bool
 		if len(args) > 0 && args[0] != "" {
