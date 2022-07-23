@@ -38,6 +38,7 @@ var nepCalCmd = &cobra.Command{
 	Short: "Shows the nepali calendar",
 	Long: `Return current nepali calendar supports arguments 2000-2090 BS.
 	Should be provided in the forma 2079-01 if specific month is required`,
+
 	Run: func(cmd *cobra.Command, args []string) {
 
 		var argsTry bool
@@ -62,6 +63,7 @@ var nepCalCmd = &cobra.Command{
 		todayNep, _ := conv.EtoN(now.Format(IsoDate))
 		generateNepCalendar(todayNep.Year(), todayNep.Month(), todayNep)
 	},
+	PostRun: PostRunMsg,
 }
 
 func checkInputNepaliDate(inp string) (y, m int) {

@@ -35,13 +35,11 @@ import (
 // todayCmd represents the today command
 var todayCmd = &cobra.Command{
 	Use:   "today",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Gives English and Nepali today's detail",
+	Long: `Today gives the english and nepali dates for today.
+It also has the number of days passed for the both the years
+with the percentage.`,
+	PostRun: PostRunMsg,
 	Run: func(cmd *cobra.Command, args []string) {
 		getNepToday()
 		getToday()
