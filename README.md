@@ -2,6 +2,8 @@
 
 CLI tool to get the details for the calendar
 
+[![codecov](https://codecov.io/gh/samit22/calendarN/branch/main/graph/badge.svg?token=A5XND1948Y)](https://codecov.io/gh/samit22/calendarN)
+
 ### Installation
 
 ```
