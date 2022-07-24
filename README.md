@@ -3,6 +3,7 @@ CalendarN is calendar New :)
 CLI tool to get the details for the calendar
 
 [![codecov](https://codecov.io/gh/samit22/calendarN/branch/main/graph/badge.svg?token=A5XND1948Y)](https://codecov.io/gh/samit22/calendarN)
+[![goreport](https://goreportcard.com/badge/github.com/samit22/calendarN)](https://goreportcard.com/report/github.com/samit22/calendarN)
 
 ### Installation
 
