@@ -98,7 +98,7 @@ func TestNewDate(t *testing.T) {
 		d int
 	}
 	// Adjusting time zone issue of 15 min
-	et := time.Date(2022, time.August, 18, 0, 15, 0, 0, time.Local)
+	et := time.Date(2022, time.August, 18, 0, 0, 0, 0, time.Local)
 	tests := []struct {
 		name    string
 		args    args
@@ -139,8 +139,8 @@ func TestNewDate(t *testing.T) {
 				return
 			}
 			if !tt.wantErr {
-				gotEngTime := got.engTime.Format(time.RFC3339)
-				wantEngTime := tt.want.engTime.Format(time.RFC3339)
+				gotEngTime := got.engTime.Format(IsoDate)
+				wantEngTime := tt.want.engTime.Format(IsoDate)
 				if gotEngTime != wantEngTime {
 					t.Errorf("NewDate() got eng time = %v, want %v", gotEngTime, wantEngTime)
 					return
