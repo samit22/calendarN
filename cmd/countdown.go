@@ -56,57 +56,70 @@ var countDown = &cobra.Command{
 	Long:    `It should provide countdown to the the given date, in days, hours, min and second.`,
 	PostRun: PostRunMsg,
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) == 0 {
-			log.Errorf("empty date for countdown use nepcalN countdown 2022-08-18 or 2022-08-18 00:00:00")
-			return
-		}
-		date := args[0]
-		if date == "" {
-			log.Errorf("empty date for countdown use nepcalN countdown 2022-08-18 or 2022-08-18 00:00:00")
-			return
-		}
-		var tm, tz string
-		if len(args) > 1 {
-			tm = args[1]
-		}
-
-		ec, err := getEnglishCountdown(date, tm, tz)
-		if err != nil {
-			log.Errorf("failed to generate countdown err: %v", err)
-			return
-		}
-		var infinite bool
-		if run == -1 {
-			infinite = true
-		}
-		if infinite {
-			log.Infof("Running for infinite loop use Ctrl + C to exit\n")
-		}
-		log.Successf("Countdown for: %s\n", name)
-		log.PrintColor(logger.Yellow, fmt.Sprintf("%d days %d hours %d minutes %d seconds\r", ec.Days, ec.Hours, ec.Minutes, ec.Seconds))
-
-		ticker := time.NewTicker(1 * time.Second)
-		done := make(chan bool)
-
-		go func() {
-			for {
-				select {
-				case <-done:
-					return
-				case <-ticker.C:
-					ec, _ = ec.Next()
-					log.PrintColor(logger.Yellow, fmt.Sprintf("%d days %d hours %d minutes %d seconds\r", ec.Days, ec.Hours, ec.Minutes, ec.Seconds))
-				}
-			}
-		}()
-		if !infinite {
-			time.Sleep(time.Duration(run) * time.Second)
-			ticker.Stop()
-			done <- true
-		} else {
-			<-done
-		}
+		runCountdown(args)
 	},
+}
+
+func runCountdown(args []string) (cdTimes int, err error) {
+	if len(args) == 0 {
+		log.Errorf("empty date for countdown use nepcalN countdown 2022-08-18 or 2022-08-18 00:00:00")
+		err = fmt.Errorf("empty date")
+		return
+	}
+	date := args[0]
+	if date == "" {
+		log.Errorf("empty date for countdown use nepcalN countdown 2022-08-18 or 2022-08-18 00:00:00")
+		err = fmt.Errorf("empty date")
+		return
+	}
+	var tm, tz string
+	if len(args) > 1 {
+		tm = args[1]
+	}
+
+	ec, err := getEnglishCountdown(date, tm, tz)
+	if err != nil {
+		log.Errorf("failed to generate countdown err: %v", err)
+		err = fmt.Errorf("countdown generation failed")
+		return
+	}
+	var infinite bool
+	if run == -1 {
+		infinite = true
+	}
+	if infinite {
+		log.Infof("Running for infinite loop use Ctrl + C to exit\n")
+	}
+	log.Successf("Countdown for: %s\n", name)
+	log.PrintColor(logger.Yellow, fmt.Sprintf("%d days %d hours %d minutes %d seconds\r", ec.Days, ec.Hours, ec.Minutes, ec.Seconds))
+	cdTimes++
+	if run != -1 && run < 2 {
+		return
+	}
+
+	ticker := time.NewTicker(1 * time.Second)
+	done := make(chan bool)
+
+	go func() {
+		for {
+			select {
+			case <-done:
+				return
+			case <-ticker.C:
+				ec, _ = ec.Next()
+				cdTimes++
+				log.PrintColor(logger.Yellow, fmt.Sprintf("%d days %d hours %d minutes %d seconds\r", ec.Days, ec.Hours, ec.Minutes, ec.Seconds))
+			}
+		}
+	}()
+	if !infinite {
+		time.Sleep(time.Duration(run-1) * time.Second)
+		ticker.Stop()
+		done <- true
+	} else {
+		<-done
+	}
+	return
 }
 
 func getEnglishCountdown(date, time, timezone string) (*countdown.Response, error) {
