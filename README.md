@@ -43,9 +43,19 @@ go install github.com/samit22/calendarN@latest
   ```
 
 - To check today's date
+
   ```
   calendarN today
   ```
+
+- To create countdown for a date (supports english only for now)
+  ```
+  calendarN coutdown 2022-08-18
+  ```
+  This supports extra flags
+  - --name provide the name for the calendar, generates random characters if not provided
+  - --run to run the calendar for n seconds(default is 5), can be set to -1 for infinite
+  - --save to save the current coutdown (to be implemented)
 
 ### Requirement
 
