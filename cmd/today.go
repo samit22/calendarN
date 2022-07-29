@@ -1,5 +1,5 @@
 /*
-Copyright © 2022 Samit info@samitghimire.com.np
+Copyright © calendarN
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -64,18 +64,15 @@ func getNepToday() {
 }
 
 func getToday() {
-	defer func() {
-		fmt.Println()
-	}()
 	now := time.Now().Local()
 	currentLocation := now.Location()
 	yearStart := time.Date(now.Year(), 1, 1, 0, 0, 0, 0, currentLocation)
 
 	yearEnd := time.Date(now.Year(), 12, 31, 0, 0, 0, 0, currentLocation)
-	elpDays := time.Since(yearStart).Hours() / 24
+	elpDays := math.Floor(time.Since(yearStart).Seconds() / (24 * 60 * 60))
 	totalDays := yearEnd.YearDay()
 
-	percenntage := math.Round(elpDays / float64(totalDays) * 100)
+	percenntage := math.Floor(elpDays / float64(totalDays) * 100)
 	log.PrintColorf(logger.Green, "***************************\n")
 	log.PrintColorf(logger.Cyan, "|       English Today     |\n")
 	log.PrintColorf(logger.Green, "|-------------------------|\n")
