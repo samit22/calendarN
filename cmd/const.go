@@ -3,7 +3,7 @@ package cmd
 import "github.com/spf13/cobra"
 
 const (
-	Version = "0.0.3"
+	Version = "0.0.4"
 	IsoDate = "2006-01-02"
 )
 

@@ -47,7 +47,7 @@ with the percentage.`,
 	},
 }
 
-func getNepToday() {
+func getNepToday() *dateconv.Date {
 	dc := dateconv.Converter{}
 	now := time.Now().Local().Format("2006-01-02")
 
@@ -61,6 +61,7 @@ func getNepToday() {
 	log.PrintColorf(logger.Green, "|                         |\n")
 	log.PrintColorf(logger.Cyan, "| यो वर्षको दिन: %s       |\n", dateconv.EnglishToNepaliNumber(nDate.YearDay()))
 	log.PrintColorf(logger.Green, "***************************\n\n")
+	return nDate
 }
 
 func getToday() {

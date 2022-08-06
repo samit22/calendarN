@@ -41,36 +41,47 @@ By default it generated calendar for current month.
 You can also pass arugment in format yyyy-mm`,
 	PostRun: PostRunMsg,
 	Run: func(cmd *cobra.Command, args []string) {
-		var argument bool
-		if len(args) > 0 && args[0] != "" {
-			argument = true
-		}
-		now := time.Now()
-	Default:
-		if argument {
-			newD := args[0] + "-01"
-			d, err := time.Parse(IsoDate, newD)
-			if err != nil {
-				log.Errorf("Invalid date should be valid date in format yyyy-mm\n")
-				log.Infof("Using current date for calendar\n")
-				argument = false
-				goto Default
-			}
-			generateCalendar(d.Year(), int(d.Month()), now)
-			return
-		}
-		generateCalendar(now.Year(), int(now.Month()), now)
+		checkArgsAndGenerateEngCalendar(args)
 	},
 }
 
-func generateCalendar(year, month int, now time.Time) {
+func checkArgsAndGenerateEngCalendar(args []string) (c Calendar) {
+	var argument bool
+	if len(args) > 0 && args[0] != "" {
+		argument = true
+	}
+	now := time.Now()
+Default:
+	if argument {
+		newD := args[0] + "-01"
+		d, err := time.Parse(IsoDate, newD)
+		if err != nil {
+			log.Errorf("Invalid date should be valid date in format yyyy-mm\n")
+			log.Infof("Using current date for calendar\n")
+			argument = false
+			goto Default
+		}
+		c = generateCalendar(d.Year(), int(d.Month()), now)
+		return
+	}
+	c = generateCalendar(now.Year(), int(now.Month()), now)
+	return
+}
+
+func generateCalendar(year, month int, now time.Time) (c Calendar) {
 	var today int
+	c.Year = year
+	c.Month = month
 
 	currentLocation := now.Location()
 	firstOfMonth := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, currentLocation)
 	lastOfMonth := firstOfMonth.AddDate(0, 1, -1)
+	c.Days = lastOfMonth.Day()
 
-	log.PrintColorf(logger.Magentacolor, "\t\t  %d %s\n", year, time.Month(month).String())
+	finalRow := [][]Row{}
+	rows := []Row{}
+
+	log.PrintColorf(logger.Magentacolor, "\t   %d %s\n", year, time.Month(month).String())
 	if year == now.Year() && month == int(now.Month()) {
 		today = now.Day()
 	}
@@ -95,31 +106,43 @@ func generateCalendar(year, month int, now time.Time) {
 				} else {
 					log.Printf("%s", "   ")
 				}
+				rows = append(rows, Row{Blank: true})
 			}
 		}
 		if today == i {
 			log.PrintBackgroundf(logger.BackgroundGreen, "%s", generateEngDay(i))
+			rows = append(rows, Row{
+				Day:   i,
+				Today: true,
+			})
 		} else {
 			if counter == 0 || counter == 6 {
 				log.PrintColorf(logger.Red, "%s", generateEngDay(i))
 			} else {
 				log.Printf("%s", generateEngDay(i))
 			}
+			rows = append(rows, Row{
+				Day: i,
+			})
 
 		}
+
 		if counter != 6 {
 			counter++
 
 		} else {
 			fmt.Print("\n")
+			finalRow = append(finalRow, rows)
+			rows = []Row{}
 			counter = 0
 		}
 		if i == lastOfMonth.Day() {
 			fmt.Println()
 		}
-
+		c.Rows = finalRow
 	}
 	fmt.Println()
+	return
 }
 
 func generateEngDay(inp int) string {
@@ -132,14 +155,4 @@ func generateEngDay(inp int) string {
 
 func init() {
 	rootCmd.AddCommand(englishcalCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// englishcalCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// englishcalCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
