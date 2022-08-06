@@ -40,30 +40,34 @@ var nepCalCmd = &cobra.Command{
 	Should be provided in the forma 2079-01 if specific month is required`,
 
 	Run: func(cmd *cobra.Command, args []string) {
-
-		var argsTry bool
-		if len(args) > 0 && args[0] != "" {
-			argsTry = true
-		}
-	TryAgain:
-		if argsTry {
-			y, m := checkInputNepaliDate(args[0])
-			d, err := dateconv.NewDate(y, m, 1)
-			if err != nil {
-				log.Errorf("invalid input error: %v\n", err)
-				log.Info("Showing this month's calendar\n")
-				argsTry = false
-				goto TryAgain
-			}
-			generateNepCalendar(d.Year(), d.Month(), d)
-			return
-		}
-		now := time.Now()
-		conv := dateconv.Converter{}
-		todayNep, _ := conv.EtoN(now.Format(IsoDate))
-		generateNepCalendar(todayNep.Year(), todayNep.Month(), todayNep)
+		parseArgsAndGenerate(args)
 	},
 	PostRun: PostRunMsg,
+}
+
+func parseArgsAndGenerate(args []string) (c Calendar) {
+	var argsTry bool
+	if len(args) > 0 && args[0] != "" {
+		argsTry = true
+	}
+TryAgain:
+	if argsTry {
+		y, m := checkInputNepaliDate(args[0])
+		d, err := dateconv.NewDate(y, m, 1)
+		if err != nil {
+			log.Errorf("invalid input error: %v\n", err)
+			log.Info("Showing this month's calendar\n")
+			argsTry = false
+			goto TryAgain
+		}
+		c = generateNepCalendar(d.Year(), d.Month(), d)
+		return
+	}
+	now := time.Now()
+	conv := dateconv.Converter{}
+	todayNep, _ := conv.EtoN(now.Format(IsoDate))
+	c = generateNepCalendar(todayNep.Year(), todayNep.Month(), todayNep)
+	return
 }
 
 func checkInputNepaliDate(inp string) (y, m int) {
@@ -76,7 +80,9 @@ func checkInputNepaliDate(inp string) (y, m int) {
 	return int(y64), int(m64)
 }
 
-func generateNepCalendar(year, month int, thisNep *dateconv.Date) {
+func generateNepCalendar(year, month int, thisNep *dateconv.Date) (c Calendar) {
+	c.Year = year
+	c.Month = month
 	var now = time.Now()
 	var today int
 	conv := dateconv.Converter{}
@@ -87,7 +93,7 @@ func generateNepCalendar(year, month int, thisNep *dateconv.Date) {
 		return
 	}
 
-	log.PrintColorf(logger.Magentacolor, "\t\t%s %s\n", thisNep.DevanagariYear(), thisNep.DevanagariMonth())
+	log.PrintColorf(logger.Magentacolor, "\t   %s %s\n", thisNep.DevanagariYear(), thisNep.DevanagariMonth())
 
 	if now.Year() == thisNep.GetEnglishDate().Year() && now.Month() == thisNep.GetEnglishDate().Month() {
 		today = thisNep.Day()
@@ -106,6 +112,9 @@ func generateNepCalendar(year, month int, thisNep *dateconv.Date) {
 	}
 	counter := 0
 	daysInThisMonth, _ := dateconv.GetDaysForMonth(year, month)
+	c.Days = daysInThisMonth
+	finalRow := [][]Row{}
+	rows := []Row{}
 	for i := 1; i <= daysInThisMonth; i++ {
 		if i == 1 {
 			noOfTab := int(d.Weekday())
@@ -116,23 +125,32 @@ func generateNepCalendar(year, month int, thisNep *dateconv.Date) {
 				} else {
 					log.Printf("%s", "  ")
 				}
+				rows = append(rows, Row{Blank: true})
 			}
 		}
 		if today == i {
 			log.PrintBackgroundf(logger.BackgroundGreen, "%s", dateconv.EnglishToNepaliNumber(i))
+			rows = append(rows, Row{
+				Day:   i,
+				Today: true,
+			})
 		} else {
 			if counter == 0 || counter == 6 {
 				log.PrintColorf(logger.Red, "%s", dateconv.EnglishToNepaliNumber(i))
 			} else {
 				log.Printf("%s", dateconv.EnglishToNepaliNumber(i))
 			}
-
+			rows = append(rows, Row{
+				Day: i,
+			})
 		}
 		if counter != 6 {
 			counter++
 
 		} else {
 			fmt.Print("\n")
+			finalRow = append(finalRow, rows)
+			rows = []Row{}
 			counter = 0
 		}
 		if i == daysInThisMonth {
@@ -140,19 +158,11 @@ func generateNepCalendar(year, month int, thisNep *dateconv.Date) {
 		}
 
 	}
+	c.Rows = finalRow
 	fmt.Println()
+	return
 }
 
 func init() {
 	rootCmd.AddCommand(nepCalCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// englishcalCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// englishcalCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
