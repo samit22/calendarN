@@ -22,6 +22,7 @@ THE SOFTWARE.
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"math"
 	"time"
@@ -32,6 +33,36 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var jsonOP bool
+
+type NepJson struct {
+	YearEng    int    `json:"year_english"`
+	MonthEng   int    `json:"month_english"`
+	DayEng     int    `json:"day_english"`
+	WeekDayEng int    `json:"week_day_english"`
+	YearDays   int    `json:"year_days"`
+	YearNep    string `json:"year"`
+	MonthNep   string `json:"month"`
+	DayNep     string `json:"day"`
+	WeekDayNep string `json:"week_day"`
+	FullDate   string `json:"full_date"`
+}
+type EngJson struct {
+	Year        int     `json:"year"`
+	Month       int     `json:"month"`
+	MonthString string  `json:"month_string"`
+	Day         int     `json:"day"`
+	WeekDay     int     `json:"week_day"`
+	FullDate    string  `json:"full_date"`
+	YearDays    int     `json:"year_days"`
+	Week        int     `json:"week"`
+	Progess     float64 `json:"progress"`
+}
+type TodayJSON struct {
+	English EngJson `json:"english"`
+	Nepali  NepJson `json:"nepali"`
+}
+
 // todayCmd represents the today command
 var todayCmd = &cobra.Command{
 	Use:   "today",
@@ -41,10 +72,35 @@ It also has the number of days passed for the both the years
 with the percentage.`,
 	PostRun: PostRunMsg,
 	Run: func(cmd *cobra.Command, args []string) {
-		getNepToday()
-		getToday()
+		properResponse(getNepToday(), getToday())
 
 	},
+}
+
+func properResponse(n *dateconv.Date, e EngJson) TodayJSON {
+
+	nep := NepJson{
+		YearEng:    n.Year(),
+		MonthEng:   n.Month(),
+		DayEng:     n.Day(),
+		WeekDayEng: int(n.WeekDay()),
+		YearDays:   n.YearDay(),
+		YearNep:    n.DevanagariYear(),
+		MonthNep:   n.DevanagariMonth(),
+		DayNep:     n.DevanagariDay(),
+		WeekDayNep: n.DevanagariWeekDay(),
+		FullDate:   fmt.Sprintf("%s, %s %s, %s", n.DevanagariWeekDay(), n.DevanagariDay(), n.DevanagariMonth(), n.DevanagariYear()),
+	}
+	tj := TodayJSON{
+		English: e,
+		Nepali:  nep,
+	}
+	if !jsonOP {
+		return tj
+	}
+	op, _ := json.MarshalIndent(tj, "", " ")
+	log.PrintColorf(logger.Cyan, "%s\n", op)
+	return tj
 }
 
 func getNepToday() *dateconv.Date {
@@ -53,6 +109,9 @@ func getNepToday() *dateconv.Date {
 
 	nDate, _ := dc.EtoN(now)
 	fmt.Println()
+	if jsonOP {
+		return nDate
+	}
 	log.PrintColorf(logger.Green, "***************************\n")
 	log.PrintColorf(logger.Cyan, "|         नेपाली आ ज       |\n")
 	log.PrintColorf(logger.Green, "|-------------------------|\n")
@@ -64,7 +123,7 @@ func getNepToday() *dateconv.Date {
 	return nDate
 }
 
-func getToday() {
+func getToday() EngJson {
 	now := time.Now().Local()
 	currentLocation := now.Location()
 	yearStart := time.Date(now.Year(), 1, 1, 0, 0, 0, 0, currentLocation)
@@ -74,13 +133,28 @@ func getToday() {
 	totalDays := yearEnd.YearDay()
 
 	percenntage := math.Floor(elpDays / float64(totalDays) * 100)
+	_, week := now.ISOWeek()
+	op := EngJson{
+		Year:        now.Year(),
+		Month:       int(now.Month()),
+		MonthString: now.Month().String(),
+		Day:         now.Day(),
+		WeekDay:     int(now.Weekday()),
+		FullDate:    now.Format("Monday, 02 January, 2006"),
+		YearDays:    int(elpDays),
+		Week:        week,
+		Progess:     elpDays / float64(totalDays) * 100,
+	}
+	if jsonOP {
+		return op
+	}
 	log.PrintColorf(logger.Green, "***************************\n")
 	log.PrintColorf(logger.Cyan, "|       English Today     |\n")
 	log.PrintColorf(logger.Green, "|-------------------------|\n")
 	log.PrintColorf(logger.Cyan, "| %s |\n", now.Format("Monday, 02 January, 2006"))
 	log.PrintColorf(logger.Green, "|                         |\n")
 	log.PrintColorf(logger.Cyan, "| Day of the year: %d    |\n", int(elpDays))
-	_, week := now.ISOWeek()
+
 	log.PrintColorf(logger.Cyan, "| Week of the year: %d    |\n", week)
 	log.PrintColorf(logger.Green, "***************************\n\n")
 	progressText := fmt.Sprintf(" %s%d progress: %s", logger.Cyan, now.Year(), logger.Reset)
@@ -104,10 +178,10 @@ func getToday() {
 		bar.Add(1)
 		time.Sleep(2 * time.Millisecond)
 	}
-
+	return op
 }
 
 func init() {
 	rootCmd.AddCommand(todayCmd)
-
+	todayCmd.Flags().BoolVarP(&jsonOP, "json", "j", jsonOP, "JSON output.")
 }
