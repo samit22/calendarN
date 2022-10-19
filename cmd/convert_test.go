@@ -43,7 +43,7 @@ func Test_DateConverter(t *testing.T) {
 			args := []string{"abc", "2022-08-18"}
 			err := dateConvert(args)
 			assert.Errorf(t, err, "expected error did not get one")
-			assert.Equal(t, err.Error(), "argument does not include `etn` or `nte`")
+			assert.Equal(t, err.Error(), "argument is neither `etn` nor `nte`")
 		}
 
 		t.Log("when first argument is etn it converts english to nepali date")

@@ -37,7 +37,7 @@ func dateConvert(args []string) error {
 		return fmt.Errorf("nte is not implemented")
 	default:
 		log.Errorf("invalid argument use etn | nte")
-		return fmt.Errorf("argument does not include `etn` or `nte`")
+		return fmt.Errorf("argument is neither `etn` nor `nte`")
 	}
 }
 
