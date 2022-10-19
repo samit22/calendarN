@@ -1,4 +1,5 @@
 # CalendarN
+
 CalendarN is calendar New :)
 CLI tool to get the details for the calendar
 
@@ -8,7 +9,6 @@ CLI tool to get the details for the calendar
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=samit22_calendarN&metric=bugs)](https://sonarcloud.io/summary/new_code?id=samit22_calendarN)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=samit22_calendarN&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=samit22_calendarN)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=samit22_calendarN&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=samit22_calendarN)
-
 
 ### Installation
 
@@ -49,13 +49,22 @@ go install github.com/samit22/calendarN@latest
   ```
 
 - To create countdown for a date (supports english only for now)
+
   ```
   calendarN coutdown 2022-08-18
   ```
+
   This supports extra flags
+
   - --name provide the name for the calendar, generates random characters if not provided
   - --run to run the calendar for n seconds(default is 5), can be set to -1 for infinite
   - --save to save the current coutdown (to be implemented)
+
+- Date converter
+  ```
+  calendarN convert etn '2022-08-18'
+  ```
+  Gives the converted date for the english to nepali date
 
 ### Requirement
 
