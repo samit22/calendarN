@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"time"
+	"fmt"
 
 	"github.com/samit22/calendarN/dateconv"
 	"github.com/samit22/calendarN/logger"
@@ -21,33 +21,32 @@ var convert = &cobra.Command{
 	},
 }
 
-func dateConvert(args []string) {
+func dateConvert(args []string) error {
 	argLength := len(args)
-	if argLength > 0 {
-		switch args[0] {
-		case "etn":
-			if argLength > 1 {
-				converEtoN(args[1])
-			} else {
-				log.Errorf("Date is required for conversion. Usage calendarN etn '2022-08-18'\n")
-			}
 
-		case "nte":
-			log.PrintColor(logger.Red, "To be implemented!!\n")
-		default:
-			log.Errorf("invalid argument use etn | nte")
-		}
+	if argLength != 2 {
+		return fmt.Errorf("argument does not include `etn` or `nte` and date")
+	}
 
+	switch args[0] {
+	case "etn":
+		_, err := converEtoN(args[1])
+		return err
+	case "nte":
+		log.PrintColor(logger.Red, "To be implemented!!\n")
+		return fmt.Errorf("nte is not implemented")
+	default:
+		log.Errorf("invalid argument use etn | nte")
+		return fmt.Errorf("argument does not include `etn` or `nte`")
 	}
 }
 
 func converEtoN(d string) (string, error) {
-	_, err := time.Parse(IsoDate, d)
+	dc := dateconv.Converter{}
+	nDate, err := dc.EtoN(d)
 	if err != nil {
 		return "", err
 	}
-	dc := dateconv.Converter{}
-	nDate, err := dc.EtoN(d)
 	log.Successf("Eng: %s => %s  || %s\n", d, nDate.RomanFullDate(), nDate.DevanagariFullDate())
 	return nDate.RomanFullDate(), nil
 }
