@@ -45,8 +45,8 @@ func init() {
 	countDown.Flags().StringVarP(&name, "name", "n", randCharcater(5), "Name of the countdown to")
 	countDown.Flags().StringVarP(&cal, "cal", "c", "eng", "Which calendar eng/nep (only eng supported now)")
 	countDown.Flags().StringVarP(&timezone, "timezone", "t", "local", "Timezone to be used (only local supported now)")
-	countDown.Flags().Int64VarP(&run, "run", "r", 5, "Run coutdown for n seconds, use -1 for infinite.")
-	countDown.Flags().BoolVarP(&save, "save", "s", false, "Save the coutdown if flag is true")
+	countDown.Flags().Int64VarP(&run, "run", "r", 5, "Run countdown for n seconds, use -1 for infinite.")
+	countDown.Flags().BoolVarP(&save, "save", "s", false, "Save the countdown if flag is true")
 }
 
 // todayCmd represents the today command
