@@ -33,7 +33,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var jsonOP bool
+var jsonOP, minifiedDates bool
 
 type NepJson struct {
 	YearEng    int    `json:"year_english"`
@@ -72,8 +72,11 @@ It also has the number of days passed for the both the years
 with the percentage.`,
 	PostRun: PostRunMsg,
 	Run: func(cmd *cobra.Command, args []string) {
-		properResponse(getNepToday(), getToday())
-
+		if minifiedDates {
+			getMinifiedDate()
+		} else {
+			properResponse(getNepToday(), getToday())
+		}
 	},
 }
 
@@ -100,6 +103,7 @@ func properResponse(n *dateconv.Date, e EngJson) TodayJSON {
 	}
 	op, _ := json.MarshalIndent(tj, "", " ")
 	log.PrintColorf(logger.Cyan, "%s\n", op)
+
 	return tj
 }
 
@@ -181,7 +185,18 @@ func getToday() EngJson {
 	return op
 }
 
+func getMinifiedDate() {
+	dc := dateconv.Converter{}
+	now := time.Now().Local()
+
+	nDate, _ := dc.EtoN(now.Format("2006-01-02"))
+	log.PrintColorf(logger.Cyan, "%s, %s %s, %s | ", nDate.DevanagariWeekDay(), nDate.DevanagariDay(), nDate.DevanagariMonth(), nDate.DevanagariYear())
+	log.PrintColorf(logger.Cyan, "%s\n", now.Format("Monday, 02 January, 2006"))
+
+}
+
 func init() {
 	rootCmd.AddCommand(todayCmd)
 	todayCmd.Flags().BoolVarP(&jsonOP, "json", "j", jsonOP, "JSON output.")
+	todayCmd.Flags().BoolVarP(&minifiedDates, "minified", "m", minifiedDates, "Minified today's date.")
 }

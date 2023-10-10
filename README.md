@@ -47,6 +47,9 @@ go install github.com/samit22/calendarN@latest
   ```
   calendarN today
   ```
+  This supports extra flags
+   - --m for minified date
+   - --j for date in JSON
 
 - To create countdown for a date (supports english only for now)
 
