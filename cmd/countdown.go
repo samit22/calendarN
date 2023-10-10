@@ -91,7 +91,7 @@ func runCountdown(args []string) (cdTimes int, err error) {
 		log.Infof("Running for infinite loop use Ctrl + C to exit\n")
 	}
 	log.Successf("Countdown for: %s\n", name)
-	log.PrintColor(logger.Yellow, fmt.Sprintf("%d days %d hours %d minutes %d seconds\r ", ec.Days, ec.Hours, ec.Minutes, ec.Seconds))
+	log.PrintColor(logger.Yellow, fmt.Sprintf("%d days %d hours %d minutes %02d seconds\r ", ec.Days, ec.Hours, ec.Minutes, ec.Seconds))
 	cdTimes++
 	if run != -1 && run < 2 {
 		return
@@ -108,11 +108,7 @@ func runCountdown(args []string) (cdTimes int, err error) {
 			case <-ticker.C:
 				ec, _ = ec.Next()
 				cdTimes++
-				seconds := fmt.Sprintf("%d", ec.Seconds)
-				if ec.Seconds < 10 {
-					seconds = "0" + seconds
-				}
-				log.PrintColor(logger.Yellow, fmt.Sprintf("%d days %d hours %d minutes %s seconds\r ", ec.Days, ec.Hours, ec.Minutes, seconds))
+				log.PrintColor(logger.Yellow, fmt.Sprintf("%d days %d hours %d minutes %02d seconds\r ", ec.Days, ec.Hours, ec.Minutes, ec.Seconds))
 			}
 		}
 	}()
