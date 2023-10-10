@@ -83,7 +83,7 @@ func Test_runCountdown(t *testing.T) {
 			}
 
 			if gotCdTimes != int(tt.args.run) {
-				t.Errorf("expected to have printed coutdown %d times got %d", tt.args.run, gotCdTimes)
+				t.Errorf("expected to have printed countdown %d times got %d", tt.args.run, gotCdTimes)
 			}
 
 		})
