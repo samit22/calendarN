@@ -117,12 +117,12 @@ func getNepToday() *dateconv.Date {
 		return nDate
 	}
 	log.PrintColorf(logger.Green, "***************************\n")
-	log.PrintColorf(logger.Cyan, "|         नेपाली आ ज       |\n")
+	log.PrintColorf(logger.Cyan, "|         नेपाली आज        |\n")
 	log.PrintColorf(logger.Green, "|-------------------------|\n")
 
 	log.PrintColorf(logger.Cyan, "|  %s, %s %s, %s |\n", nDate.DevanagariWeekDay(), nDate.DevanagariDay(), nDate.DevanagariMonth(), nDate.DevanagariYear())
 	log.PrintColorf(logger.Green, "|                         |\n")
-	log.PrintColorf(logger.Cyan, "| यो वर्षको दिन: %s       |\n", dateconv.EnglishToNepaliNumber(nDate.YearDay()))
+	log.PrintColorf(logger.Cyan, "|   यो वर्षको दिन: %s     |\n", dateconv.EnglishToNepaliNumber(nDate.YearDay()))
 	log.PrintColorf(logger.Green, "***************************\n\n")
 	return nDate
 }
@@ -136,7 +136,7 @@ func getToday() EngJson {
 	elpDays := math.Floor(time.Since(yearStart).Seconds() / (24 * 60 * 60))
 	totalDays := yearEnd.YearDay()
 
-	percenntage := math.Floor(elpDays / float64(totalDays) * 100)
+	percentage := math.Floor(elpDays / float64(totalDays) * 100)
 	_, week := now.ISOWeek()
 	op := EngJson{
 		Year:        now.Year(),
@@ -155,7 +155,7 @@ func getToday() EngJson {
 	log.PrintColorf(logger.Green, "***************************\n")
 	log.PrintColorf(logger.Cyan, "|       English Today     |\n")
 	log.PrintColorf(logger.Green, "|-------------------------|\n")
-	log.PrintColorf(logger.Cyan, "| %s |\n", now.Format("Monday, 02 January, 2006"))
+	log.PrintColorf(logger.Cyan, "| %s |\n", now.Format("Monday,02 January,2006"))
 	log.PrintColorf(logger.Green, "|                         |\n")
 	log.PrintColorf(logger.Cyan, "| Day of the year: %d    |\n", int(elpDays))
 
@@ -174,11 +174,11 @@ func getToday() EngJson {
 			Saucer:        "[green]▉[reset]",
 			SaucerHead:    "[green][reset]",
 			SaucerPadding: " ",
-			BarStart:      "▉",
-			BarEnd:        "▉",
+			BarStart:      "|",
+			BarEnd:        "|",
 		}))
 
-	for i := 0; i <= int(percenntage*10); i++ {
+	for i := 0; i <= int(percentage*10); i++ {
 		bar.Add(1)
 		time.Sleep(2 * time.Millisecond)
 	}
