@@ -43,8 +43,8 @@ func init() {
 
 // todayCmd represents the today command
 var list = &cobra.Command{
-	Use:     "list",
-	Short:   "Gives list of saved countdown.",
+	Use:     "all",
+	Short:   "Gives list of all saved countdown.",
 	Long:    `It will return all the saved countdowns.`,
 	PostRun: PostRunMsg,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -68,7 +68,7 @@ func listCountdowns(args []string) map[string]countdown.Response {
 		date := d[0]
 		hour := "00:00:00"
 		if len(d) > 1 {
-			hour = d[1]
+			hour = strings.TrimSpace(d[1])
 		}
 		datetime := date + " " + hour
 
