@@ -21,8 +21,15 @@ THE SOFTWARE.
 */
 package main
 
-import "github.com/samit22/calendarN/cmd"
+import (
+	_ "embed"
+
+	"github.com/samit22/calendarN/cmd"
+)
+
+//go:embed .version
+var version string
 
 func main() {
-	cmd.Execute()
+	cmd.Execute(version)
 }
