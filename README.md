@@ -47,9 +47,11 @@ go install github.com/samit22/calendarN@latest
   ```
   calendarN today
   ```
+
   This supports extra flags
-   - --m for minified date
-   - --j for date in JSON
+
+  - --m for minified date
+  - --j for date in JSON
 
 - To create countdown for a date (supports english only for now)
 
@@ -61,7 +63,31 @@ go install github.com/samit22/calendarN@latest
 
   - --name provide the name for the calendar, generates random characters if not provided
   - --run to run the calendar for n seconds(default is 5), can be set to -1 for infinite
-  - --save to save the current countdown (to be implemented)
+  - --save to save the current countdown
+
+To save a countdown with a name
+
+```bash
+calendarN countdown -n "My Birthday" 2024-08-18 -s
+```
+
+To list all the countdowns
+
+```bash
+calendarN countdown all
+```
+
+To get a specific countdown
+
+```bash
+ calendarN countdown show -n 'My Birthday'
+```
+
+To delete a countdown
+
+```bash
+calendarN countdown delete -n 'My Birthday'
+```
 
 - Date converter
   ```

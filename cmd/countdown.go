@@ -24,6 +24,9 @@ package cmd
 import (
 	"fmt"
 	"math/rand"
+	"os"
+	"os/user"
+	"strings"
 	"time"
 
 	"github.com/samit22/calendarN/countdown"
@@ -32,11 +35,19 @@ import (
 )
 
 var (
-	run      int64
-	name     string
-	cal      string
-	timezone string
-	save     bool
+	run       int64
+	name      string
+	cal       string
+	timezone  string
+	save      bool
+	overwrite bool
+)
+var (
+	currentUser, _ = user.Current()
+	homeDir        = currentUser.HomeDir
+	folderPath     = homeDir + "/.calendarN"
+	fileName       = ".calendar"
+	filePath       = folderPath + "/" + fileName
 )
 
 func init() {
@@ -47,6 +58,8 @@ func init() {
 	countDown.Flags().StringVarP(&timezone, "timezone", "t", "local", "Timezone to be used (only local supported now)")
 	countDown.Flags().Int64VarP(&run, "run", "r", 5, "Run countdown for n seconds, use -1 for infinite.")
 	countDown.Flags().BoolVarP(&save, "save", "s", false, "Save the countdown if flag is true")
+	countDown.Flags().BoolVarP(&overwrite, "overwrite", "o", false, "Overwrite existing name")
+
 }
 
 // todayCmd represents the today command
@@ -62,13 +75,13 @@ var countDown = &cobra.Command{
 
 func runCountdown(args []string) (cdTimes int, err error) {
 	if len(args) == 0 {
-		log.Errorf("empty date for countdown use nepcalN countdown 2022-08-18 or 2022-08-18 00:00:00")
+		log.Errorf("empty date for countdown use calendarN countdown 2022-08-18 or 2022-08-18 00:00:00")
 		err = fmt.Errorf("empty date")
 		return
 	}
 	date := args[0]
 	if date == "" {
-		log.Errorf("empty date for countdown use nepcalN countdown 2022-08-18 or 2022-08-18 00:00:00")
+		log.Errorf("empty date for countdown use calendarN countdown 2022-08-18 or 2022-08-18 00:00:00")
 		err = fmt.Errorf("empty date")
 		return
 	}
@@ -82,6 +95,9 @@ func runCountdown(args []string) (cdTimes int, err error) {
 		log.Errorf("failed to generate countdown err: %v", err)
 		err = fmt.Errorf("countdown generation failed")
 		return
+	}
+	if save {
+		loadDataToFile(name, date)
 	}
 	var infinite bool
 	if run == -1 {
@@ -122,6 +138,40 @@ func runCountdown(args []string) (cdTimes int, err error) {
 	return
 }
 
+func loadDataToFile(name, date string) error {
+	data, err := os.ReadFile(filePath)
+	if os.IsNotExist(err) {
+		if _, err := os.Stat(folderPath); os.IsNotExist(err) {
+			err := os.MkdirAll(folderPath, os.ModePerm)
+			if err != nil {
+				log.Errorf("Error creating folder: %v", err)
+				return err
+			}
+		}
+
+	}
+	var existingData = formatSavedData(data)
+
+	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Errorf("Error opening or creating file: %v", err)
+		return err
+	}
+	defer file.Close()
+
+	if !overwrite {
+		if _, ok := existingData[name]; ok {
+			log.Errorf("Can't save, same name already exists.\n")
+			return nil
+		}
+	}
+	_, err = file.Write([]byte(fmt.Sprintf("%s :: %s\n", name, date)))
+	if err != nil {
+		log.Errorf("Error writing to file: %v", err)
+	}
+	return err
+}
+
 func getEnglishCountdown(date, time, timezone string) (*countdown.Response, error) {
 	ct := countdown.NewCountdown()
 	return ct.GetEnglishCountdown(date, time, timezone)
@@ -135,4 +185,18 @@ func randCharcater(n int) string {
 		b[i] = letters[rand.Intn(len(letters))]
 	}
 	return string(b)
+}
+
+func formatSavedData(data []byte) map[string]string {
+	var existingData = make(map[string]string)
+	if len(data) > 0 {
+		readData := strings.Split(string(data), "\n")
+		for _, row := range readData {
+			split := strings.Split(row, " :: ")
+			if len(split) > 1 {
+				existingData[split[0]] = split[1]
+			}
+		}
+	}
+	return existingData
 }

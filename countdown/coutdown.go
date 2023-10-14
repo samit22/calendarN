@@ -32,17 +32,18 @@ func (t *tm) GetCurrentTime() time.Time {
 }
 
 // Response returns the countdown for the given date
-//  Days = days for the countdown
-//  Hours = hours remaining
-//  Minutes = minutes remaining
-//  Seconds = seconds remaining
+//
+//	Days = days for the countdown
+//	Hours = hours remaining
+//	Minutes = minutes remaining
+//	Seconds = seconds remaining
 type Response struct {
-	Days           int `json:"days"`
-	Hours          int `json:"hours"`
-	Minutes        int `json:"minutes"`
-	Seconds        int `json:"seconds"`
-	originaEngDate *time.Time
-	ct             CurrentTimeIface
+	Days            int `json:"days"`
+	Hours           int `json:"hours"`
+	Minutes         int `json:"minutes"`
+	Seconds         int `json:"seconds"`
+	originalEngDate *time.Time
+	ct              CurrentTimeIface
 }
 
 type new struct {
@@ -61,7 +62,7 @@ func NewCountdown() *new {
 // Next return the next duration of the countdown
 // Can be used to generate the ever running timer using ticker
 func (c *Response) Next() (*Response, error) {
-	ot := c.originaEngDate
+	ot := c.originalEngDate
 	if ot == nil {
 		return nil, fmt.Errorf("time is not defined")
 	}
@@ -74,6 +75,10 @@ func (c *Response) Next() (*Response, error) {
 	c.Minutes = int(rem / durationMinutes)
 	c.Seconds = rem % durationMinutes
 	return c, nil
+}
+
+func (c *Response) GetTimestamp() string {
+	return c.originalEngDate.Format(acceptFormatDateTime)
 }
 
 // GetEnglishCountdown returns the countdown for the given date
@@ -99,8 +104,8 @@ func (n *new) GetEnglishCountdown(date, tm, timezone string) (*Response, error) 
 		return nil, calerr.New(err, "invalid date, should be in the future", 422)
 	}
 	cr := &Response{
-		originaEngDate: &t,
-		ct:             n.currentTime,
+		originalEngDate: &t,
+		ct:              n.currentTime,
 	}
 	return cr.Next()
 }
