@@ -1,31 +1,9 @@
-/*
-Copyright © calendarN
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-*/
 package cmd
 
 import (
 	"os"
+	"strings"
 	"testing"
-
-	"github.com/samit22/calendarN/countdown"
 )
 
 func Test_showCountdown(t *testing.T) {
@@ -40,7 +18,9 @@ func Test_showCountdown(t *testing.T) {
 		data       string
 		name       string
 		args       args
-		want       map[string]countdown.Response
+		wantName   string
+		wantErr    string
+		err        bool
 	}{
 		{
 			name:       "If the countdown with name exists it returns the countdown",
@@ -50,18 +30,42 @@ func Test_showCountdown(t *testing.T) {
 				args: []string{},
 				name: "sam",
 			},
-			want: map[string]countdown.Response{
-				"sam": {},
-			},
+			wantName: "sam",
 		},
 		{
-			name: "If the countdown with name does not exists it returns nil",
+			name: "If the countdown with name does not exists it returns empty",
 
 			args: args{
 				args: []string{},
 				name: "sam",
 			},
-			want: map[string]countdown.Response{},
+			wantName: "",
+			wantErr:  "no such file or directory",
+			err:      true,
+		},
+		{
+			name:       "When time is in past it returns error",
+			createData: true,
+			data:       `sam :: 2020-01-02`,
+			args: args{
+				args: []string{},
+				name: "sam",
+			},
+			wantName: "",
+			wantErr:  "time in past t: 2020-01-02 00:00:00 +0000 UTC",
+			err:      true,
+		},
+		{
+			name:       "When time is in invalid format it returs error",
+			createData: true,
+			data:       `sam :: 220-01-02`,
+			args: args{
+				args: []string{},
+				name: "sam",
+			},
+			wantName: "",
+			err:      true,
+			wantErr:  `parsing time "220-01-02 00:00:00" as "2006-01-02 15:04:05": cannot parse "01-02 00:00:00" as "2006"`,
 		},
 	}
 	for _, tt := range tests {
@@ -73,10 +77,16 @@ func Test_showCountdown(t *testing.T) {
 					os.Remove(filePath)
 				})
 			}
-			got := showCountdown(tt.args.args)
-			if len(got) != len(tt.want) {
-				t.Errorf("showCountdown() = %v, want %v", got, tt.want)
+			gotName, gotErr := showCountdown(tt.args.args)
+
+			if !tt.err && gotName != tt.wantName {
+				t.Errorf("showCountdown() = %v, want %v", gotName, tt.wantName)
 			}
+
+			if tt.err && !strings.Contains(gotErr.Error(), tt.wantErr) {
+				t.Errorf("Err showCountdown() = %v, want %v", gotErr.Error(), tt.wantErr)
+			}
+
 		})
 	}
 }

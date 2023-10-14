@@ -63,12 +63,11 @@ var deleteCD = &cobra.Command{
 	},
 }
 
-func showCountdown(args []string) map[string]countdown.Response {
-	response := make(map[string]countdown.Response)
+func showCountdown(args []string) (string, error) {
 	data, err := os.ReadFile(filePath)
 	if os.IsNotExist(err) {
 		log.Errorf("no countdown saved, to save one use `calendarN countdown -n 'AUS' -s 2023-11-05`")
-		return response
+		return "", err
 	}
 	var existingData = formatSavedData(data)
 	ct := countdown.NewCountdown()
@@ -76,7 +75,7 @@ func showCountdown(args []string) map[string]countdown.Response {
 	dateTime, exists := existingData[name]
 	if !exists {
 		log.Errorf("no countdown saved with name: %s", name)
-		return response
+		return "", fmt.Errorf("no countdown saved with name: %s", name)
 	}
 	d := strings.Split(dateTime, " ")
 	date := d[0]
@@ -89,23 +88,21 @@ func showCountdown(args []string) map[string]countdown.Response {
 	parsedTime, err := time.Parse("2006-01-02 15:04:05", datetime)
 	if err != nil {
 		log.Errorf("failed to parse saved data: err: %v", err)
-		return response
+		return "", err
 	}
 	if parsedTime.Before(time.Now()) {
 		log.Infof("time in past t: %s\n", parsedTime.String())
-		return response
+		return "", fmt.Errorf("time in past t: %s\n", parsedTime.String())
 	}
-	ec, err := ct.GetEnglishCountdown(date, hour, "")
-	if err != nil {
-		log.Errorf("failed to parse saved data: err: %v", err)
-		return response
-	}
+
+	// this error is already handled in the above if block
+	ec, _ := ct.GetEnglishCountdown(date, hour, "")
+
 	log.PrintColor(logger.Yellow, fmt.Sprintf("%s -> %s\n", name, dateTime))
 	log.PrintColor(logger.Yellow, fmt.Sprintf("%d days %d hours %d minutes %d seconds\n\n", ec.Days, ec.Hours, ec.Minutes, ec.Seconds))
 
-	response[name] = *ec
 	if run != -1 && run < 2 {
-		return response
+		return name, nil
 	}
 
 	ticker := time.NewTicker(1 * time.Second)
@@ -137,7 +134,7 @@ func showCountdown(args []string) map[string]countdown.Response {
 	} else {
 		<-done
 	}
-	return response
+	return name, nil
 }
 
 func deleteCountdown(args []string) error {

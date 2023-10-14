@@ -81,12 +81,8 @@ func listCountdowns(args []string) map[string]countdown.Response {
 			cleanData = true
 			continue
 		}
-		ec, err := ct.GetEnglishCountdown(date, hour, "")
-		if err != nil {
-			log.Errorf("failed to parse saved data: err: %v", err)
-			cleanData = true
-			continue
-		}
+		// Error check is already done in the above if block
+		ec, _ := ct.GetEnglishCountdown(date, hour, "")
 		log.PrintColor(logger.Yellow, fmt.Sprintf("%s -> %s\n", name, dateTime))
 		log.PrintColor(logger.Yellow, fmt.Sprintf("%d days %d hours %d minutes %d seconds\n\n", ec.Days, ec.Hours, ec.Minutes, ec.Seconds))
 		newData += fmt.Sprintf("%s :: %s\n", name, dateTime)
