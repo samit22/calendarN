@@ -41,7 +41,8 @@ One of the handy uses can be adding 'calendarN today' gives today's details.
 This tool does not have any network calls to fetch the data so is fast.`,
 }
 
-func Execute() {
+func Execute(version string) {
+	Version = version
 	err := rootCmd.Execute()
 	if err != nil {
 		os.Exit(1)
