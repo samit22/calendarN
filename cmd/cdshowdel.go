@@ -102,7 +102,41 @@ func showCountdown(args []string) map[string]countdown.Response {
 	}
 	log.PrintColor(logger.Yellow, fmt.Sprintf("%s -> %s\n", name, dateTime))
 	log.PrintColor(logger.Yellow, fmt.Sprintf("%d days %d hours %d minutes %d seconds\n\n", ec.Days, ec.Hours, ec.Minutes, ec.Seconds))
+
 	response[name] = *ec
+	if run != -1 && run < 2 {
+		return response
+	}
+
+	ticker := time.NewTicker(1 * time.Second)
+	done := make(chan bool)
+
+	go func() {
+		for {
+			select {
+			case <-done:
+				return
+			case <-ticker.C:
+				ec, _ = ec.Next()
+
+				log.PrintColor(logger.Yellow, fmt.Sprintf("%d days %d hours %d minutes %02d seconds\r ", ec.Days, ec.Hours, ec.Minutes, ec.Seconds))
+			}
+		}
+	}()
+	var infinite bool
+	if run == -1 {
+		infinite = true
+	}
+	if infinite {
+		log.Infof("Running for infinite loop use Ctrl + C to exit\n")
+	}
+	if !infinite {
+		time.Sleep(time.Duration(run-1) * time.Second)
+		ticker.Stop()
+		done <- true
+	} else {
+		<-done
+	}
 	return response
 }
 

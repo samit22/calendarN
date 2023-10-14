@@ -36,8 +36,6 @@ import (
 func init() {
 	rand.Seed(time.Now().UnixNano())
 	countDown.AddCommand(list)
-	list.Flags().StringVarP(&name, "name", "n", randCharcater(5), "Name of the countdown to")
-	list.Flags().Int64VarP(&run, "run", "r", 5, "Run countdown for n seconds, use -1 for infinite.")
 
 }
 
