@@ -120,7 +120,7 @@ func getNepToday() *dateconv.Date {
 	log.PrintColorf(logger.Cyan, "|         नेपाली आज        |\n")
 	log.PrintColorf(logger.Green, "|-------------------------|\n")
 
-	log.PrintColorf(logger.Cyan, "|  %s, %s %s, %s |\n", nDate.DevanagariWeekDay(), nDate.DevanagariDay(), nDate.DevanagariMonth(), nDate.DevanagariYear())
+	log.PrintColorf(logger.Cyan, "|  %s, %s %s, %s|\n", nDate.DevanagariWeekDay(), nDate.DevanagariDay(), nDate.DevanagariMonth(), nDate.DevanagariYear())
 	log.PrintColorf(logger.Green, "|                         |\n")
 	log.PrintColorf(logger.Cyan, "|   यो वर्षको दिन: %s     |\n", dateconv.EnglishToNepaliNumber(nDate.YearDay()))
 	log.PrintColorf(logger.Green, "***************************\n\n")
@@ -155,7 +155,7 @@ func getToday() EngJson {
 	log.PrintColorf(logger.Green, "***************************\n")
 	log.PrintColorf(logger.Cyan, "|       English Today     |\n")
 	log.PrintColorf(logger.Green, "|-------------------------|\n")
-	log.PrintColorf(logger.Cyan, "| %s |\n", now.Format("Monday,02 January,2006"))
+	log.PrintColorf(logger.Cyan, "| %s  |\n", now.Format("Monday,02 January,2006"))
 	log.PrintColorf(logger.Green, "|                         |\n")
 	log.PrintColorf(logger.Cyan, "| Day of the year: %d    |\n", int(elpDays))
 
