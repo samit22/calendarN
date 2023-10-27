@@ -2,8 +2,9 @@ package cmd
 
 import "github.com/spf13/cobra"
 
+var Version string
+
 const (
-	Version = "1.1.0"
 	IsoDate = "2006-01-02"
 )
 

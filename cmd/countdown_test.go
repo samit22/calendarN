@@ -9,6 +9,7 @@ func Test_runCountdown(t *testing.T) {
 	type args struct {
 		args []string
 		run  int64
+		save bool
 	}
 	newT := time.Now().Add(50 * time.Hour)
 
@@ -70,11 +71,25 @@ func Test_runCountdown(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "Date and time and run and save given",
+			args: args{
+				args: []string{newT.Format("2006-01-02"), "10:00:03"},
+				run:  3,
+				save: true,
+			},
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
 			run = tt.args.run
+			save = tt.args.save
+			if save {
+				dir := t.TempDir()
+				filePath = dir + "/" + fileName
+			}
 
 			gotCdTimes, err := runCountdown(tt.args.args)
 			if (err != nil) != tt.wantErr {
