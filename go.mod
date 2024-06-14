@@ -1,6 +1,6 @@
 module github.com/samit22/calendarN
 
-go 1.18
+go 1.22
 
 require (
 	github.com/schollz/progressbar/v3 v3.8.7
