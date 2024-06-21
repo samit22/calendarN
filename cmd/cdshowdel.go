@@ -23,7 +23,6 @@ package cmd
 
 import (
 	"fmt"
-	"math/rand"
 	"os"
 	"strings"
 	"time"
@@ -34,7 +33,6 @@ import (
 )
 
 func init() {
-	rand.Seed(time.Now().UnixNano())
 	countDown.AddCommand(show)
 	show.Flags().StringVarP(&name, "name", "n", "", "Name of the countdown to	show")
 	show.Flags().Int64VarP(&run, "run", "r", 5, "Run countdown for n seconds, use -1 for infinite.")
