@@ -51,7 +51,6 @@ var (
 )
 
 func init() {
-	rand.Seed(time.Now().UnixNano())
 	rootCmd.AddCommand(countDown)
 	countDown.Flags().StringVarP(&name, "name", "n", randCharcater(5), "Name of the countdown to")
 	countDown.Flags().StringVarP(&cal, "cal", "c", "eng", "Which calendar eng/nep (only eng supported now)")

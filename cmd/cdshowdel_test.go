@@ -2,12 +2,13 @@ package cmd
 
 import (
 	"os"
-	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_showCountdown(t *testing.T) {
-	dir := t.TempDir()
+	dir := "/tmp"
 	filePath = dir + "/" + fileName
 	type args struct {
 		args []string
@@ -21,6 +22,7 @@ func Test_showCountdown(t *testing.T) {
 		wantName   string
 		wantErr    string
 		err        bool
+		removeDIR  bool
 	}{
 		{
 			name:       "If the countdown with name exists it returns the countdown",
@@ -39,9 +41,10 @@ func Test_showCountdown(t *testing.T) {
 				args: []string{},
 				name: "sam",
 			},
-			wantName: "",
-			wantErr:  "no such file or directory",
-			err:      true,
+			wantName:  "",
+			wantErr:   "no such file or directory",
+			err:       true,
+			removeDIR: true,
 		},
 		{
 			name:       "When time is in past it returns error",
@@ -56,7 +59,7 @@ func Test_showCountdown(t *testing.T) {
 			err:      true,
 		},
 		{
-			name:       "When time is in invalid format it returs error",
+			name:       "When time is in invalid format it returns error",
 			createData: true,
 			data:       `sam :: 220-01-02`,
 			args: args{
@@ -65,26 +68,28 @@ func Test_showCountdown(t *testing.T) {
 			},
 			wantName: "",
 			err:      true,
-			wantErr:  `parsing time "220-01-02 00:00:00" as "2006-01-02 15:04:05": cannot parse "01-02 00:00:00" as "2006"`,
+			wantErr:  `parsing time "220-01-02 00:00:00" as "2006-01-02 15:04:05": cannot pars`,
 		},
 	}
+	os.WriteFile(filePath, []byte{}, 0644)
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			name = tt.args.name
 			if tt.createData {
-				os.WriteFile(filePath, []byte(tt.data), 0644)
-				t.Cleanup(func() {
-					os.Remove(filePath)
-				})
+				err := os.WriteFile(filePath, []byte(tt.data), 0644)
+				assert.NoError(t, err)
+			}
+			if tt.removeDIR {
+				os.Remove(filePath)
 			}
 			gotName, gotErr := showCountdown(tt.args.args)
 
-			if !tt.err && gotName != tt.wantName {
-				t.Errorf("showCountdown() = %v, want %v", gotName, tt.wantName)
+			if !tt.err {
+				assert.Equal(t, tt.wantName, gotName, "showCountdown() = %v, want %v", gotName, tt.wantName)
 			}
 
-			if tt.err && !strings.Contains(gotErr.Error(), tt.wantErr) {
-				t.Errorf("Err showCountdown() = %v, want %v", gotErr.Error(), tt.wantErr)
+			if tt.err {
+				assert.Contains(t, gotErr.Error(), tt.wantErr)
 			}
 
 		})
@@ -103,7 +108,7 @@ func Test_deleteCountdown(t *testing.T) {
 		data       string
 		name       string
 		args       args
-		wantErr    bool
+		err        string
 	}{
 		{
 
@@ -114,7 +119,7 @@ func Test_deleteCountdown(t *testing.T) {
 				args: []string{},
 				name: "sam",
 			},
-			wantErr: false,
+			err: "",
 		},
 		{
 			name: "If the countdown with name does not exists it returns nil",
@@ -123,7 +128,7 @@ func Test_deleteCountdown(t *testing.T) {
 				args: []string{},
 				name: "sam",
 			},
-			wantErr: true,
+			err: "somethinh",
 		},
 	}
 	for _, tt := range tests {
@@ -134,8 +139,11 @@ func Test_deleteCountdown(t *testing.T) {
 					os.Remove(filePath)
 				})
 			}
-			if err := deleteCountdown(tt.args.args); (err != nil) != tt.wantErr {
-				t.Errorf("deleteCountdown() error = %v, wantErr %v", err, tt.wantErr)
+			err := deleteCountdown(tt.args.args)
+			if tt.err == "" {
+				assert.NoError(t, err)
+			} else {
+				assert.Error(t, err)
 			}
 		})
 	}

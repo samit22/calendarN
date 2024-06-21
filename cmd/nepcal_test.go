@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_parseArgsAndGenerate(t *testing.T) {
@@ -39,9 +41,9 @@ func Test_parseArgsAndGenerate(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			gotC := parseArgsAndGenerate(tt.args.args)
 			if tt.wantDeep {
-				if gotC.Year != tt.wantC.Year && gotC.Month != tt.wantC.Month && gotC.Days != tt.wantC.Days {
-					t.Errorf("parseArgsAndGenerate() = %v, want %v", gotC, tt.wantC)
-				}
+				assert.Equal(t, tt.wantC.Year, gotC.Year)
+				assert.Equal(t, tt.wantC.Month, gotC.Month)
+				assert.Equal(t, tt.wantC.Days, gotC.Days)
 			} else {
 				if gotC.Year < 2000 {
 					t.Errorf("should have received year > 2000 got %+v", gotC.Year)

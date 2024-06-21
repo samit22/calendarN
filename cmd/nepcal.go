@@ -53,9 +53,7 @@ func parseArgsAndGenerate(args []string) (c Calendar) {
 TryAgain:
 	if argsTry {
 		y, m := checkInputNepaliDate(args[0])
-		conv := dateconv.Converter{}
-		np, _ := conv.EtoN(time.Now().Format(IsoDate))
-		d, err := dateconv.NewDate(y, m, np.Day())
+		d, err := dateconv.NewDate(y, m, 1)
 		if err != nil {
 			log.Errorf("invalid input error: %v\n", err)
 			log.Info("Showing this month's calendar\n")
