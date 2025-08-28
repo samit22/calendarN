@@ -16,3 +16,4 @@ calendarN
 # vendor/
 .idea
 .vscode
+.env
