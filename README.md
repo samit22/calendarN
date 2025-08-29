@@ -115,7 +115,7 @@ calendarN countdown delete -n 'My Birthday'
 
 ### Requirement
 
-- Go 1.18+
+- Go 1.24+
 
 ### Contributing
 

@@ -79,8 +79,17 @@ func (d *Date) YearDay() int {
 	for month := m; month >= 0; month-- {
 		days += yrs[month]
 	}
-	return days
 
+	return days
+}
+
+func (d *Date) CurrentYearDays() int {
+	yrs := nepaliDates[d.year]
+	var days int
+	for _, d := range yrs {
+		days += d
+	}
+	return days
 }
 
 func (d *Date) GetEnglishDate() (t *time.Time) {

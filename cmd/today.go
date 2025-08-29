@@ -36,16 +36,17 @@ import (
 var jsonOP, minifiedDates bool
 
 type NepJson struct {
-	YearEng    int    `json:"year_english"`
-	MonthEng   int    `json:"month_english"`
-	DayEng     int    `json:"day_english"`
-	WeekDayEng int    `json:"week_day_english"`
-	YearDays   int    `json:"year_days"`
-	YearNep    string `json:"year"`
-	MonthNep   string `json:"month"`
-	DayNep     string `json:"day"`
-	WeekDayNep string `json:"week_day"`
-	FullDate   string `json:"full_date"`
+	YearEng    int     `json:"year_english"`
+	MonthEng   int     `json:"month_english"`
+	DayEng     int     `json:"day_english"`
+	WeekDayEng int     `json:"week_day_english"`
+	YearDays   int     `json:"year_days"`
+	YearNep    string  `json:"year"`
+	MonthNep   string  `json:"month"`
+	DayNep     string  `json:"day"`
+	WeekDayNep string  `json:"week_day"`
+	FullDate   string  `json:"full_date"`
+	Progress   float64 `json:"progress"`
 }
 type EngJson struct {
 	Year        int     `json:"year"`
@@ -56,7 +57,7 @@ type EngJson struct {
 	FullDate    string  `json:"full_date"`
 	YearDays    int     `json:"year_days"`
 	Week        int     `json:"week"`
-	Progess     float64 `json:"progress"`
+	Progress    float64 `json:"progress"`
 }
 type TodayJSON struct {
 	English EngJson `json:"english"`
@@ -93,6 +94,7 @@ func properResponse(n *dateconv.Date, e EngJson) TodayJSON {
 		DayNep:     n.DevanagariDay(),
 		WeekDayNep: n.DevanagariWeekDay(),
 		FullDate:   fmt.Sprintf("%s, %s %s, %s", n.DevanagariWeekDay(), n.DevanagariDay(), n.DevanagariMonth(), n.DevanagariYear()),
+		Progress:   (float64(n.YearDay()) / float64(n.CurrentYearDays())) * 100,
 	}
 	tj := TodayJSON{
 		English: e,
@@ -116,14 +118,37 @@ func getNepToday() *dateconv.Date {
 	if jsonOP {
 		return nDate
 	}
-	log.PrintColorf(logger.Green, "***************************\n")
-	log.PrintColorf(logger.Cyan, "|         नेपाली आज        |\n")
-	log.PrintColorf(logger.Green, "|-------------------------|\n")
+	progressPercent := (float64(nDate.YearDay()) / float64(nDate.CurrentYearDays())) * 100
+	log.PrintColorf(logger.Green, "*******************************\n")
+	log.PrintColorf(logger.Cyan, "|           नेपाली आज          |\n")
+	log.PrintColorf(logger.Green, "|-----------------------------|\n")
 
-	log.PrintColorf(logger.Cyan, "|  %s, %s %s, %s|\n", nDate.DevanagariWeekDay(), nDate.DevanagariDay(), nDate.DevanagariMonth(), nDate.DevanagariYear())
-	log.PrintColorf(logger.Green, "|                         |\n")
-	log.PrintColorf(logger.Cyan, "|   यो वर्षको दिन: %s     |\n", dateconv.EnglishToNepaliNumber(nDate.YearDay()))
-	log.PrintColorf(logger.Green, "***************************\n\n")
+	log.PrintColorf(logger.Cyan, "|  %s, %s %s, %s    |\n", nDate.DevanagariWeekDay(), nDate.DevanagariDay(), nDate.DevanagariMonth(), nDate.DevanagariYear())
+	log.PrintColorf(logger.Green, "|                             |\n")
+	log.PrintColorf(logger.Cyan, "|   यो वर्षको दिन: %s         |\n", dateconv.EnglishToNepaliNumber(nDate.YearDay()))
+	log.PrintColorf(logger.Green, "*******************************\n\n")
+
+	nepaliProgressText := fmt.Sprintf(" %s%s साल: %s", logger.Cyan, nDate.DevanagariYear(), logger.Reset)
+
+	bar := progressbar.NewOptions(1000,
+		progressbar.OptionEnableColorCodes(true),
+		progressbar.OptionSetWidth(40),
+		progressbar.OptionSetPredictTime(false),
+		progressbar.OptionSetDescription(nepaliProgressText),
+		progressbar.OptionSetRenderBlankState(false),
+		progressbar.OptionSpinnerType(0),
+		progressbar.OptionSetTheme(progressbar.Theme{
+			Saucer:        "[green]▉[reset]",
+			SaucerHead:    "[green][reset]",
+			SaucerPadding: " ",
+			BarStart:      "|",
+			BarEnd:        "|",
+		}))
+
+	for i := 0; i <= int(progressPercent*10); i++ {
+		bar.Add(1)
+		time.Sleep(2 * time.Millisecond)
+	}
 	return nDate
 }
 
@@ -147,12 +172,12 @@ func getToday() EngJson {
 		FullDate:    now.Format("Monday, 02 January, 2006"),
 		YearDays:    int(elpDays),
 		Week:        week,
-		Progess:     elpDays / float64(totalDays) * 100,
+		Progress:    elpDays / float64(totalDays) * 100,
 	}
 	if jsonOP {
 		return op
 	}
-	log.PrintColorf(logger.Green, "***************************\n")
+	log.PrintColorf(logger.Green, "\n\n ***************************\n")
 	log.PrintColorf(logger.Cyan, "|       English Today     |\n")
 	log.PrintColorf(logger.Green, "|-------------------------|\n")
 	log.PrintColorf(logger.Cyan, "| %s  |\n", now.Format("Monday,02 January,2006"))
