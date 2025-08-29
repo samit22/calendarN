@@ -23,4 +23,4 @@ jobs:
           CONSUMER_SECRET: ${{ secrets.CONSUMER_SECRET }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           ACCESS_TOKEN_SECRET: ${{ secrets.ACCESS_TOKEN_SECRET }}
-        run: cd compose && CONSUMER_KEY=${{ secrets.CONSUMER_KEY }} CONSUMER_SECRET=${{ secrets.CONSUMER_SECRET }} ACCESS_TOKEN=${{ secrets.ACCESS_TOKEN }} ACCESS_TOKEN_SECRET=${{ secrets.ACCESS_TOKEN_SECRET }}  go run .
+        run: make create-tweet
