@@ -5,15 +5,14 @@ import (
 )
 
 const (
-	total float64 = 100
-
-	barWidth int = 30
+	total    float64 = 100
+	barWidth int     = 30
 )
 
 func printProgressBar(progress float64) string {
 	blocks := int(progress * float64(barWidth))
 	bar := "[" + repeat("▓", blocks) + repeat("░", barWidth-blocks) + "]"
-	percentage := int(progress * 100)
+	percentage := int(progress * total)
 	return fmt.Sprintf("\r%s %d%%", bar, percentage)
 }
 

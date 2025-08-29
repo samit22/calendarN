@@ -1,9 +1,8 @@
 module github.com/samit22/calendarN
 
-go 1.22
+go 1.24
 
 require (
-	github.com/dghubble/oauth1 v0.7.3
 	github.com/schollz/progressbar/v3 v3.14.4
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.19.0
