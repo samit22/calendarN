@@ -2,11 +2,13 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"crypto/hmac"
 	"crypto/sha1"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"sort"
@@ -27,7 +29,7 @@ type TweetResponse struct {
 	} `json:"data"`
 }
 
-func CreateTweet(tweetText string) (string, error) {
+func CreateTweet(ctx context.Context, client *http.Client, tweetText string) (string, error) {
 	if len(tweetText) > 280 {
 		return "", fmt.Errorf("tweet exceeds 280 characters")
 	}
@@ -37,7 +39,7 @@ func CreateTweet(tweetText string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("marshaling payload: %w", err)
 	}
-	req, err := http.NewRequest("POST", apiURL, bytes.NewBuffer(payloadBytes))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, apiURL, bytes.NewBuffer(payloadBytes))
 	if err != nil {
 		return "", fmt.Errorf("creating http request: %w", err)
 	}
@@ -46,17 +48,21 @@ func CreateTweet(tweetText string) (string, error) {
 	signature := generateOAuthSignature(req, oauthParams, consumerSecret, accessTokenSecret)
 	oauthHeader := buildOAuthHeader(oauthParams, signature)
 	req.Header.Set("Authorization", oauthHeader)
-	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
 		return "", fmt.Errorf("sending http request: %w", err)
 	}
 	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("reading response body: %w", err)
+	}
 	if resp.StatusCode != http.StatusCreated {
-		return "", fmt.Errorf("tweet post status: %s", resp.Status)
+		return "", fmt.Errorf("tweet post status: %s response %s", resp.Status, string(body))
 	}
 	var tweetResp TweetResponse
-	if err := json.NewDecoder(resp.Body).Decode(&tweetResp); err != nil {
+	if err := json.Unmarshal(body, &tweetResp); err != nil {
 		return "", fmt.Errorf("decoding tweet response: %v", err)
 	}
 	return tweetResp.Data.ID, nil

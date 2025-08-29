@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"net/http"
 	"os"
 )
 
@@ -13,14 +15,13 @@ var (
 )
 
 func main() {
+	ctx := context.Background()
 	if err := validateEnv(); err != nil {
-		fmt.Printf("environment validation failed: %v", err)
-		os.Exit(1)
+		exit("environment validation failed: %v", err)
 	}
-	tweetID, err := CreateTweet(getToday())
+	tweetID, err := CreateTweet(ctx, &http.Client{}, getToday())
 	if err != nil {
-		fmt.Printf("failed to tweet %v", err)
-		os.Exit(1)
+		exit("failed to create tweet: %v", err)
 	}
 	fmt.Printf("created tweet: %s\n", tweetID)
 }
@@ -31,4 +32,11 @@ func validateEnv() error {
 	}
 
 	return nil
+}
+
+var osExit = os.Exit
+
+func exit(msg string, args ...any) {
+	fmt.Printf(msg, args...)
+	osExit(1)
 }

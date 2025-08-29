@@ -7,6 +7,11 @@ import (
 	"github.com/samit22/calendarN/dateconv"
 )
 
+const (
+	total    float64 = 100
+	barWidth int     = 30
+)
+
 func getToday() string {
 	t := time.Now().UTC().Add(time.Hour*5 + time.Minute*45)
 	dc := dateconv.Converter{}
@@ -16,4 +21,18 @@ func getToday() string {
 	text = fmt.Sprintf("%s\n (%s/%s दिन)", text, dateconv.EnglishToNepaliNumber(nDate.YearDay()),
 		dateconv.EnglishToNepaliNumber(nDate.CurrentYearDays()))
 	return text
+}
+
+func printProgressBar(progress float64) string {
+	blocks := int(progress * float64(barWidth))
+	bar := "[" + repeat("▓", blocks) + repeat("░", barWidth-blocks) + "]"
+	percentage := int(progress * total)
+	return fmt.Sprintf("\r%s %d%%", bar, percentage)
+}
+
+func repeat(s string, count int) string {
+	if count <= 0 {
+		return ""
+	}
+	return fmt.Sprintf("%s%s", s, repeat(s, count-1))
 }
