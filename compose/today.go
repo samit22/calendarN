@@ -13,7 +13,12 @@ const (
 )
 
 func getToday() string {
-	t := time.Now().UTC().Add(time.Hour*5 + time.Minute*45)
+	loc, err := time.LoadLocation("Asia/Kathmandu")
+	if err != nil {
+		// Fallback to UTC+5:45 if timezone data is not available
+		loc = time.FixedZone("NPT", 5*60*60+45*60)
+	}
+	t := time.Now().In(loc)
 	dc := dateconv.Converter{}
 	nDate, _ := dc.EtoN(t.Format("2006-01-02"))
 	text := fmt.Sprintf("आज:  %s साल, %s महिनाको %s गते\n", nDate.DevanagariYear(), nDate.DevanagariMonth(), nDate.DevanagariDay())

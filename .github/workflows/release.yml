@@ -1,0 +1,103 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Run tests
+        run: go test ./...
+
+      - name: Build binaries
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          LDFLAGS="-s -w -X main.version=${VERSION}"
+          
+          # Darwin (macOS)
+          GOOS=darwin GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o dist/calendarN-darwin-amd64 .
+          GOOS=darwin GOARCH=arm64 go build -ldflags "${LDFLAGS}" -o dist/calendarN-darwin-arm64 .
+          
+          # Linux
+          GOOS=linux GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o dist/calendarN-linux-amd64 .
+          GOOS=linux GOARCH=arm64 go build -ldflags "${LDFLAGS}" -o dist/calendarN-linux-arm64 .
+          
+          # Windows
+          GOOS=windows GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o dist/calendarN-windows-amd64.exe .
+          
+          # Create archives
+          cd dist
+          tar -czf calendarN-darwin-amd64.tar.gz calendarN-darwin-amd64
+          tar -czf calendarN-darwin-arm64.tar.gz calendarN-darwin-arm64
+          tar -czf calendarN-linux-amd64.tar.gz calendarN-linux-amd64
+          tar -czf calendarN-linux-arm64.tar.gz calendarN-linux-arm64
+          zip calendarN-windows-amd64.zip calendarN-windows-amd64.exe
+          
+          # Generate checksums
+          shasum -a 256 *.tar.gz *.zip > checksums.txt
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/*.tar.gz
+            dist/*.zip
+            dist/checksums.txt
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  update-homebrew:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get version
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Calculate SHA256
+        id: sha
+        run: |
+          VERSION=${{ steps.version.outputs.VERSION }}
+          curl -sL "https://github.com/samit22/calendarN/archive/refs/tags/${VERSION}.tar.gz" -o source.tar.gz
+          SHA256=$(shasum -a 256 source.tar.gz | cut -d ' ' -f 1)
+          echo "SHA256=${SHA256}" >> $GITHUB_OUTPUT
+
+      - name: Update Formula
+        run: |
+          VERSION=${{ steps.version.outputs.VERSION }}
+          SHA256=${{ steps.sha.outputs.SHA256 }}
+          
+          # Update the formula file
+          sed -i "s|url \"https://github.com/samit22/calendarN/archive/refs/tags/v.*\.tar\.gz\"|url \"https://github.com/samit22/calendarN/archive/refs/tags/${VERSION}.tar.gz\"|" Formula/calendarn.rb
+          sed -i "s|sha256 \".*\"|sha256 \"${SHA256}\"|" Formula/calendarn.rb
+
+      - name: Commit and push formula update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/calendarn.rb
+          git commit -m "Update Homebrew formula to ${{ steps.version.outputs.VERSION }}" || exit 0
+          git push origin HEAD:main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

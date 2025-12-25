@@ -212,3 +212,117 @@ func TestDate_YearDay(t *testing.T) {
 		})
 	}
 }
+
+// Test for Validate error messages fix
+func TestDate_Validate_ErrorMessages(t *testing.T) {
+	tests := []struct {
+		name         string
+		date         Date
+		wantErr      bool
+		errContains  string
+	}{
+		{
+			name: "valid date",
+			date: Date{
+				year:  2079,
+				month: 5,
+				day:   15,
+			},
+			wantErr: false,
+		},
+		{
+			name: "year below range",
+			date: Date{
+				year:  1999,
+				month: 5,
+				day:   15,
+			},
+			wantErr:     true,
+			errContains: "invalid year 1999",
+		},
+		{
+			name: "year above range",
+			date: Date{
+				year:  2091,
+				month: 5,
+				day:   15,
+			},
+			wantErr:     true,
+			errContains: "invalid year 2091",
+		},
+		{
+			name: "month below range",
+			date: Date{
+				year:  2079,
+				month: 0,
+				day:   15,
+			},
+			wantErr:     true,
+			errContains: "invalid month 0",
+		},
+		{
+			name: "month above range",
+			date: Date{
+				year:  2079,
+				month: 13,
+				day:   15,
+			},
+			wantErr:     true,
+			errContains: "invalid month 13",
+		},
+		{
+			name: "day below range",
+			date: Date{
+				year:  2079,
+				month: 5,
+				day:   0,
+			},
+			wantErr:     true,
+			errContains: "invalid day 0 should be between 1 to 32",
+		},
+		{
+			name: "day above range - error message should say 32 not 12",
+			date: Date{
+				year:  2079,
+				month: 5,
+				day:   33,
+			},
+			wantErr:     true,
+			errContains: "invalid day 33 should be between 1 to 32",
+		},
+		{
+			name: "day exceeds month days",
+			date: Date{
+				year:  2079,
+				month: 1, // month 1 of 2079 has 31 days
+				day:   32,
+			},
+			wantErr:     true,
+			errContains: "does not have 32 days",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.date.Validate()
+			if tt.wantErr {
+				if err == nil {
+					t.Errorf("Validate() expected error but got none")
+					return
+				}
+				if tt.errContains != "" && !containsString(err.Error(), tt.errContains) {
+					t.Errorf("Validate() error = %q, want error containing %q", err.Error(), tt.errContains)
+				}
+			} else {
+				if err != nil {
+					t.Errorf("Validate() unexpected error: %v", err)
+				}
+			}
+		})
+	}
+}
+
+func containsString(s, substr string) bool {
+	return len(s) >= len(substr) && (s == substr || len(substr) == 0 || 
+		(len(s) > 0 && (containsString(s[1:], substr) || s[:len(substr)] == substr)))
+}

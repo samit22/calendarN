@@ -23,7 +23,6 @@ package cmd
 
 import (
 	"fmt"
-	"math/rand"
 	"os"
 	"strings"
 	"time"
@@ -34,9 +33,7 @@ import (
 )
 
 func init() {
-	rand.Seed(time.Now().UnixNano())
 	countDown.AddCommand(list)
-
 }
 
 // todayCmd represents the today command

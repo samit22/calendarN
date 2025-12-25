@@ -151,6 +151,29 @@ func loadDataToFile(name, date string) error {
 	}
 	var existingData = formatSavedData(data)
 
+	_, exists := existingData[name]
+	if exists && !overwrite {
+		log.Errorf("Can't save, same name already exists. Use --overwrite to replace.\n")
+		return fmt.Errorf("countdown with name '%s' already exists", name)
+	}
+
+	if exists && overwrite {
+		// Update the existing entry
+		existingData[name] = date
+		var newData string
+		for key, value := range existingData {
+			newData += fmt.Sprintf("%s :: %s\n", key, value)
+		}
+		err = os.WriteFile(filePath, []byte(newData), 0644)
+		if err != nil {
+			log.Errorf("Error writing to file: %v", err)
+			return err
+		}
+		log.Successf("Countdown '%s' updated successfully\n", name)
+		return nil
+	}
+
+	// Append new entry
 	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Errorf("Error opening or creating file: %v", err)
@@ -158,12 +181,6 @@ func loadDataToFile(name, date string) error {
 	}
 	defer file.Close()
 
-	if !overwrite {
-		if _, ok := existingData[name]; ok {
-			log.Errorf("Can't save, same name already exists.\n")
-			return nil
-		}
-	}
 	_, err = file.Write([]byte(fmt.Sprintf("%s :: %s\n", name, date)))
 	if err != nil {
 		log.Errorf("Error writing to file: %v", err)

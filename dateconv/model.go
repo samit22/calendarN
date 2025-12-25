@@ -113,7 +113,7 @@ func (d *Date) Validate() error {
 		return fmt.Errorf("invalid month %d, should be between %d to %d", d.month, 1, 12)
 	}
 	if d.day < 1 || d.day > 32 {
-		return fmt.Errorf("invalid day %d should be between %d to %d", d.day, 1, 12)
+		return fmt.Errorf("invalid day %d should be between %d to %d", d.day, 1, 32)
 
 	}
 	// d.month - 1 since index starts with 0

@@ -158,6 +158,10 @@ func generateNepCalendar(year, month int, thisNep *dateconv.Date) (c Calendar) {
 		}
 
 	}
+	// Add the last row if it has any days
+	if len(rows) > 0 {
+		finalRow = append(finalRow, rows)
+	}
 	c.Rows = finalRow
 	fmt.Println()
 	return

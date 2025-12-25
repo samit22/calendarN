@@ -1,7 +1,6 @@
 # CalendarN
 
-CalendarN is calendar New :)
-CLI tool to get the details for the calendar
+CalendarN is a powerful CLI tool for working with Nepali (Bikram Sambat) and English (Gregorian) calendars. Convert dates, view calendars, track countdowns, and more!
 
 [![codecov](https://codecov.io/gh/samit22/calendarN/branch/main/graph/badge.svg?token=A5XND1948Y)](https://codecov.io/gh/samit22/calendarN)
 [![goreport](https://goreportcard.com/badge/github.com/samit22/calendarN)](https://goreportcard.com/report/github.com/samit22/calendarN)
@@ -10,115 +9,219 @@ CLI tool to get the details for the calendar
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=samit22_calendarN&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=samit22_calendarN)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=samit22_calendarN&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=samit22_calendarN)
 
-### Installation
+## Features
 
+- 📅 View Nepali (BS) and English calendars
+- 🔄 Convert dates between Nepali and English
+- ⏱️ Create and manage countdowns
+- 📊 Track year progress with visual progress bars
+- 🎨 Beautiful terminal output with colors
+
+## Installation
+
+### Homebrew (macOS/Linux)
+
+The easiest way to install calendarN on macOS or Linux:
+
+```bash
+# Add the tap
+brew tap samit22/calendarN https://github.com/samit22/calendarN
+
+# Install calendarN
+brew install calendarn
 ```
+
+To upgrade to the latest version:
+
+```bash
+brew upgrade calendarn
+```
+
+### Go Install
+
+If you have Go installed (1.21+):
+
+```bash
 go install github.com/samit22/calendarN@latest
 ```
 
-### Commands
-
-#### Nep
-
-This command is for Nepali Calendar
-Available commands:
+### Build from Source
 
 ```bash
+git clone https://github.com/samit22/calendarN.git
+cd calendarN
+make build
+./calendarN --help
+```
+
+### Manual Installation
+
+Download the latest release from the [Releases page](https://github.com/samit22/calendarN/releases) for your platform.
+
+## Commands
+
+### Today
+
+Get today's date in both Nepali and English with year progress:
+
+```bash
+calendarN today
+```
+
+**Flags:**
+- `-m, --minified` - Minified date output
+- `-j, --json` - Output in JSON format
+
+```bash
+# Minified output
+calendarN today -m
+
+# JSON output
+calendarN today -j
+```
+
+### Nepali Calendar (nep)
+
+View the Nepali calendar:
+
+```bash
+# Current month
 calendarN nep
+
+# Specific year and month (BS)
+calendarN nep 2081-09
 ```
 
-To generate nepali calendar for specific year and month
+### English Calendar (eng)
+
+View the English calendar:
 
 ```bash
-calendarN nep 2079-05
+# Current month
+calendarN eng
+
+# Specific year and month
+calendarN eng 2024-12
 ```
 
-#### Eng
+### Date Conversion (convert)
 
-This command is for English Calendar
-Available commands:
-
-- To generate english calendar
+Convert dates between English and Nepali:
 
 ```bash
- calendarN eng
+# English to Nepali
+calendarN convert etn 2024-12-25
+# Output: Eng: 2024-12-25 => 2081-09-10 || २०८१-०९-१०
 ```
 
-To generate english calendar for specific year and month
+### Countdown
+
+Create and manage countdowns to important dates:
 
 ```bash
-  calendarN eng 2022-08
+# Create a countdown
+calendarN countdown 2025-01-01
+
+# Create with a name and save it
+calendarN countdown -n "New Year" 2025-01-01 -s
+
+# With specific time
+calendarN countdown -n "Meeting" 2025-01-15 14:30:00 -s
 ```
 
-#### Today
+**Flags:**
+- `-n, --name` - Name for the countdown (random if not provided)
+- `-r, --run` - Run countdown for n seconds (default: 5, use -1 for infinite)
+- `-s, --save` - Save the countdown for later
+- `-o, --overwrite` - Overwrite existing countdown with same name
 
-- To check today's date
-
-```bash
-  calendarN today
-```
-
-This supports extra flags
-
-- --m for minified date (-m)
-- --j for date in JSON (-j)
-
-#### Countdown
-
-Shows countdowns
-
-- To create countdown for a date (supports english only for now)
+**Managing saved countdowns:**
 
 ```bash
-  calendarN countdown 2022-08-18
-```
-
-This supports extra flags
-
-- --name provide the name for the calendar, generates random characters if not provided
-- --run to run the calendar for n seconds(default is 5), can be set to -1 for infinite
-- --save to save the current countdown
-
-To save a countdown with a name
-
-```bash
-calendarN countdown -n "My Birthday" 2024-08-18 -s
-```
-
-To list all the countdowns
-
-```bash
+# List all saved countdowns
 calendarN countdown all
+
+# Show a specific countdown
+calendarN countdown show -n "New Year"
+
+# Delete a countdown
+calendarN countdown delete -n "New Year"
 ```
 
-To get a specific countdown
+### Version
+
+Check the installed version:
 
 ```bash
- calendarN countdown show -n 'My Birthday'
+calendarN version
 ```
 
-To delete a countdown
+## Examples
+
+### View Today's Date
 
 ```bash
-calendarN countdown delete -n 'My Birthday'
+$ calendarN today -m
+बुधवार, २५ पुष, २०८१ | Wednesday, 25 December, 2024
 ```
 
-### Convert
+### Convert a Date
 
-- Date converter
+```bash
+$ calendarN convert etn 2024-12-25
+Eng: 2024-12-25 => 2081-09-10 || २०८१-०९-१०
+```
 
-  ```bash
-  calendarN convert etn '2022-08-18'
-  ```
+### Create a Birthday Countdown
 
-  Gives the converted date for the english to nepali date
+```bash
+$ calendarN countdown -n "Birthday" 2025-08-15 -s -r 10
+Countdown for: Birthday
+45 days 12 hours 30 minutes 15 seconds
+```
 
-### Requirement
+## Supported Date Range
 
-- Go 1.24+
+- **Nepali (BS):** 2000 BS to 2090 BS
+- **English:** 1944 AD onwards (corresponding to the BS range)
 
-### Contributing
+## Requirements
 
-- For new feature/bug create an issue
-- Check for the issues and assign yourself
-- Make sure added code has 80% unit test coverage
+- Go 1.21+ (for building from source)
+- macOS, Linux, or Windows
+
+## Development
+
+```bash
+# Clone the repository
+git clone https://github.com/samit22/calendarN.git
+cd calendarN
+
+# Run tests
+make test
+
+# Build
+make build
+
+# Cross-compile for all platforms
+make release-all
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Make sure your code has adequate test coverage (80%+)
+4. Commit your changes (`git commit -m 'Add amazing feature'`)
+5. Push to the branch (`git push origin feature/amazing-feature`)
+6. Open a Pull Request
+
+For bugs or feature requests, please [create an issue](https://github.com/samit22/calendarN/issues).
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Author
+
+**Samit Ghimire** - [info@samitghimire.com.np](mailto:info@samitghimire.com.np)
