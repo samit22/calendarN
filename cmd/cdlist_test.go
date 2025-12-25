@@ -11,30 +11,20 @@ func Test_listCountdowns(t *testing.T) {
 	dir := t.TempDir()
 	filePath = dir + "/" + fileName
 
-	type args struct {
-		args []string
-	}
 	tests := []struct {
+		name       string
 		createData bool
 		data       string
-		name       string
-		args       args
 		want       map[string]countdown.Response
 	}{
 		{
 			name: "When file does not exist",
-			args: args{
-				args: []string{},
-			},
 			want: map[string]countdown.Response{},
 		},
 		{
 			name:       "When file exists it reads the file",
 			createData: true,
 			data:       `sam :: 3030-01-02`,
-			args: args{
-				args: []string{},
-			},
 			want: map[string]countdown.Response{
 				"sam": {},
 			},
@@ -44,9 +34,6 @@ func Test_listCountdowns(t *testing.T) {
 			createData: true,
 			data: `sam :: 3030-01-02
 			bad :: 030-01-02`,
-			args: args{
-				args: []string{},
-			},
 			want: map[string]countdown.Response{
 				"sam": {},
 			},
@@ -57,9 +44,6 @@ func Test_listCountdowns(t *testing.T) {
 			data: `sam :: 3030-02-02
 			bad :: 1930-01-02
 			good :: 3030-01-02 02:00:00`,
-			args: args{
-				args: []string{},
-			},
 			want: map[string]countdown.Response{
 				"sam":  {},
 				"good": {},
@@ -75,7 +59,7 @@ func Test_listCountdowns(t *testing.T) {
 				})
 			}
 
-			got := listCountdowns(tt.args.args)
+			got := listCountdowns()
 			if len(got) != len(tt.want) {
 				t.Errorf("listCountdowns() = %v, want %v", got, tt.want)
 			}
