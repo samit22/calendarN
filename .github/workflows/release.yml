@@ -78,7 +78,7 @@ jobs:
         id: sha
         run: |
           VERSION=${{ steps.version.outputs.VERSION }}
-          curl -sL "https://github.com/samit22/calendarN/archive/refs/tags/${VERSION}.tar.gz" -o source.tar.gz
+          curl --proto '=https' --tlsv1.2 -sSfL "https://github.com/samit22/calendarN/archive/refs/tags/${VERSION}.tar.gz" -o source.tar.gz
           SHA256=$(shasum -a 256 source.tar.gz | cut -d ' ' -f 1)
           echo "SHA256=${SHA256}" >> $GITHUB_OUTPUT
 
