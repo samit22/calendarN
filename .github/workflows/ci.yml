@@ -18,28 +18,31 @@ jobs:
     env:
       ACTIONS_BUILD_ID: ${{ github.run_id }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
     - uses: actions/setup-go@v5
       with:
-        go-version-file: 'go.mod'
+        go-version: '1.21'
 
     - name: Build
       run: go build -v ./...
 
-    - name: Test
-      run: make test
+    - name: Test with coverage
+      run: |
+        mkdir -p coverage
+        go test ./... -coverprofile=coverage/coverage.out -covermode=atomic
 
-    - name: Run coverage
-      run: ./test.sh
     - name: Upload coverage to Codecov
-      run: bash <(curl -s https://codecov.io/bash)
-    - name: SonarCloud Scan
-      uses: SonarSource/sonarcloud-github-action@master
+      uses: codecov/codecov-action@v4
       with:
-        projectBaseDir: ./
+        files: coverage/coverage.out
+        fail_ci_if_error: false
+        token: ${{ secrets.CODECOV_TOKEN }}
+
+    - name: SonarCloud Scan
+      uses: SonarSource/sonarcloud-github-action@v2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

@@ -188,7 +188,7 @@ Countdown for: Birthday
 ## Requirements
 
 - Go 1.21+ (for building from source)
-- macOS, Linux, or Windows
+- macOS, Linux, or Windows (x86_64 or ARM64)
 
 ## Development
 
