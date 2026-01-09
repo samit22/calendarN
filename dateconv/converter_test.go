@@ -221,13 +221,133 @@ func Test_findTotalDays(t *testing.T) {
 					day:   5,
 				},
 			},
-			want: 369,
+			want: 400, // 365 (year 2000) + 31 (month 1 of 2001) + 4 (day 5 - 1)
+		},
+		// New test cases for month 1 edge case fix
+		{
+			name: "Month 1 day 1 of start year",
+			args: struct {
+				d Date
+			}{
+				d: Date{
+					year:  2000,
+					month: 1,
+					day:   1,
+				},
+			},
+			want: 0,
+		},
+		{
+			name: "Month 1 day 15 of start year",
+			args: struct {
+				d Date
+			}{
+				d: Date{
+					year:  2000,
+					month: 1,
+					day:   15,
+				},
+			},
+			want: 14, // just day - 1
+		},
+		{
+			name: "Month 1 last day of start year",
+			args: struct {
+				d Date
+			}{
+				d: Date{
+					year:  2000,
+					month: 1,
+					day:   30,
+				},
+			},
+			want: 29, // day - 1
+		},
+		{
+			name: "Month 1 of second year",
+			args: struct {
+				d Date
+			}{
+				d: Date{
+					year:  2001,
+					month: 1,
+					day:   1,
+				},
+			},
+			want: 365, // all days in year 2000
+		},
+		{
+			name: "Month 3 calculation",
+			args: struct {
+				d Date
+			}{
+				d: Date{
+					year:  2000,
+					month: 3,
+					day:   1,
+				},
+			},
+			want: 62, // 30 (month 1) + 32 (month 2)
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := findTotalDays(tt.args.d); got != tt.want {
 				t.Errorf("findTotalDays() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+// Test for upper bound check fix
+func TestConverter_EtoN_UpperBound(t *testing.T) {
+	c := &Converter{}
+
+	tests := []struct {
+		name    string
+		date    string
+		wantErr bool
+		errMsg  string
+	}{
+		{
+			name:    "Date within range - 2033",
+			date:    "2033-04-14",
+			wantErr: false,
+		},
+		{
+			name:    "Date at end of range - 2090 BS equivalent",
+			date:    "2034-04-13",
+			wantErr: false,
+		},
+		{
+			name:    "Date beyond supported range",
+			date:    "2050-01-01",
+			wantErr: true,
+			errMsg:  "date not supported after year 2090 BS",
+		},
+		{
+			name:    "Date far in the future",
+			date:    "2100-01-01",
+			wantErr: true,
+			errMsg:  "date not supported after year 2090 BS",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := c.EtoN(tt.date)
+			if tt.wantErr {
+				if err == nil {
+					t.Errorf("EtoN(%s) expected error but got none", tt.date)
+					return
+				}
+				if tt.errMsg != "" && err.Error() != tt.errMsg {
+					t.Errorf("EtoN(%s) error = %v, want %v", tt.date, err.Error(), tt.errMsg)
+				}
+			} else {
+				if err != nil {
+					t.Errorf("EtoN(%s) unexpected error: %v", tt.date, err)
+				}
 			}
 		})
 	}

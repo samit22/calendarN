@@ -23,7 +23,6 @@ package cmd
 
 import (
 	"fmt"
-	"math/rand"
 	"os"
 	"strings"
 	"time"
@@ -34,9 +33,7 @@ import (
 )
 
 func init() {
-	rand.Seed(time.Now().UnixNano())
 	countDown.AddCommand(list)
-
 }
 
 // todayCmd represents the today command
@@ -46,11 +43,11 @@ var list = &cobra.Command{
 	Long:    `It will return all the saved countdowns.`,
 	PostRun: PostRunMsg,
 	Run: func(cmd *cobra.Command, args []string) {
-		listCountdowns(args)
+		listCountdowns()
 	},
 }
 
-func listCountdowns(args []string) map[string]countdown.Response {
+func listCountdowns() map[string]countdown.Response {
 	response := make(map[string]countdown.Response)
 	data, err := os.ReadFile(filePath)
 	if os.IsNotExist(err) {

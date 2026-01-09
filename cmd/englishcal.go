@@ -139,8 +139,12 @@ func generateCalendar(year, month int, now time.Time) (c Calendar) {
 		if i == lastOfMonth.Day() {
 			fmt.Println()
 		}
-		c.Rows = finalRow
 	}
+	// Add the last row if it has any days
+	if len(rows) > 0 {
+		finalRow = append(finalRow, rows)
+	}
+	c.Rows = finalRow
 	fmt.Println()
 	return
 }

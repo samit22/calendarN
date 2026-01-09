@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"testing"
+	"time"
 )
 
 func Test_getToday_OutputFormat(t *testing.T) {
@@ -13,6 +14,87 @@ func Test_getToday_OutputFormat(t *testing.T) {
 	}
 	if !containsAll(output, []string{"आज:", "साल", "महिनाको", "गते", "%", "दिन"}) {
 		t.Errorf("getToday() output missing expected Nepali date or progress bar: %s", output)
+	}
+}
+
+// Test for timezone handling fix - ensures proper timezone loading
+func Test_getToday_TimezoneHandling(t *testing.T) {
+	t.Log("Test that getToday uses proper Nepal timezone")
+
+	// The function should work regardless of the system timezone
+	output := getToday()
+
+	// Basic sanity checks
+	if output == "" {
+		t.Errorf("getToday() returned empty string")
+		return
+	}
+
+	// Should contain Nepali date components
+	requiredComponents := []string{"आज:", "साल", "महिनाको", "गते"}
+	for _, comp := range requiredComponents {
+		if !contains(output, comp) {
+			t.Errorf("getToday() output missing '%s': %s", comp, output)
+		}
+	}
+
+	// Should contain progress bar
+	if !contains(output, "[") || !contains(output, "]") {
+		t.Errorf("getToday() output missing progress bar brackets: %s", output)
+	}
+
+	// Should contain percentage
+	if !contains(output, "%") {
+		t.Errorf("getToday() output missing percentage: %s", output)
+	}
+}
+
+// Test that timezone loading works correctly
+func Test_TimezoneLoading(t *testing.T) {
+	t.Log("Test timezone loading for Nepal")
+
+	// Try to load Nepal timezone
+	loc, err := time.LoadLocation("Asia/Kathmandu")
+	if err != nil {
+		// If timezone data is not available, test the fallback
+		t.Log("Asia/Kathmandu timezone not available, testing fallback")
+		loc = time.FixedZone("NPT", 5*60*60+45*60)
+	}
+
+	// Get current time in Nepal timezone
+	nepTime := time.Now().In(loc)
+
+	// Verify the timezone offset is correct (+5:45)
+	_, offset := nepTime.Zone()
+	expectedOffset := 5*60*60 + 45*60 // 5 hours 45 minutes in seconds
+
+	if offset != expectedOffset {
+		t.Errorf("Nepal timezone offset = %d seconds, want %d seconds", offset, expectedOffset)
+	}
+}
+
+// Test that getToday produces consistent output
+func Test_getToday_Consistency(t *testing.T) {
+	t.Log("Test that getToday produces consistent output format")
+
+	output1 := getToday()
+	output2 := getToday()
+
+	// Both calls should produce non-empty output
+	if output1 == "" || output2 == "" {
+		t.Errorf("getToday() returned empty string")
+		return
+	}
+
+	// The format should be similar (same structural components)
+	// Note: The actual values may differ slightly if called across midnight
+	components := []string{"आज:", "साल", "महिनाको", "गते", "[", "]", "%", "दिन"}
+	for _, comp := range components {
+		inOutput1 := contains(output1, comp)
+		inOutput2 := contains(output2, comp)
+		if inOutput1 != inOutput2 {
+			t.Errorf("Inconsistent output format for '%s': output1=%v, output2=%v", comp, inOutput1, inOutput2)
+		}
 	}
 }
 

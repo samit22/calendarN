@@ -30,7 +30,9 @@ func (c *Converter) EtoN(date string) (*Date, error) {
 		if npMonth == 12 {
 			npMonth = 1
 			npYear++
-
+			if npYear > nepEndYear {
+				return resp, fmt.Errorf("date not supported after year %d BS", nepEndYear)
+			}
 		} else {
 			npMonth++
 		}
@@ -52,7 +54,7 @@ func findTotalDays(d Date) int {
 
 	m := d.month - 2
 	y := d.year
-	if m == 0 {
+	if m < 0 {
 		y = y - 1
 		m = 11
 	}

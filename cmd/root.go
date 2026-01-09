@@ -33,7 +33,7 @@ var cfgFile string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "calendar",
+	Use:   "calendarN",
 	Short: "Calendar for nepali and english dates",
 	Long: `Handy tool for nepali and english date lookup.
 This tool will help developers to easy lookup dates, convert and more.
