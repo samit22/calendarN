@@ -4,8 +4,8 @@
 class Calendarn < Formula
   desc "CLI tool to generate Nepali and English calendars with date conversion"
   homepage "https://github.com/samit22/calendarN"
-  url "https://github.com/samit22/calendarN/archive/refs/tags/v1.3.3.tar.gz"
-  sha256 "92f7aaab6ae57fdda20c7f93369f056346a1f4bfc28930b57c528736793ef205"
+  url "https://github.com/samit22/calendarN/archive/refs/tags/v1.4.0.tar.gz"
+  sha256 "0a67b8e9d4ceb71a1eab71c8b8aa227c36d62e745083bf932b35f44f1e104482"
   license "MIT"
   head "https://github.com/samit22/calendarN.git", branch: "main"
 
