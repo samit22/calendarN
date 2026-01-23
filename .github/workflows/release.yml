@@ -67,6 +67,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -92,13 +93,30 @@ jobs:
           sed -i "s|url \"https://github.com/samit22/calendarN/archive/refs/tags/v.*\.tar\.gz\"|url \"https://github.com/samit22/calendarN/archive/refs/tags/${VERSION}.tar.gz\"|" Formula/calendarn.rb
           sed -i "s|sha256 \".*\"|sha256 \"${SHA256}\"|" Formula/calendarn.rb
 
-      - name: Commit and push formula update
+      - name: Create PR for formula update
         run: |
+          VERSION=${{ steps.version.outputs.VERSION }}
+          BRANCH="chore/update-homebrew-formula-${VERSION}"
+          
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Create and switch to new branch
+          git checkout -b "${BRANCH}"
+          
+          # Commit changes
           git add Formula/calendarn.rb
-          git commit -m "Update Homebrew formula to ${{ steps.version.outputs.VERSION }}" || exit 0
-          git push origin HEAD:main
+          git commit -m "chore: update Homebrew formula to ${VERSION}" || exit 0
+          
+          # Push branch
+          git push origin "${BRANCH}"
+          
+          # Create PR
+          gh pr create \
+            --title "chore: update Homebrew formula to ${VERSION}" \
+            --body "Automated PR to update Homebrew formula for release ${VERSION}" \
+            --base main \
+            --head "${BRANCH}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
