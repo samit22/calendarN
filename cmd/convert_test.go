@@ -27,6 +27,36 @@ func Test_ConverEtoN(t *testing.T) {
 	}
 }
 
+func Test_ConvertNtoE(t *testing.T) {
+	t.Log("when date is invalid it returns error")
+	{
+		date := "sdasd"
+
+		_, err := convertNtoE(date)
+		expErr := `invalid date format, should be 2079-11-02`
+		assert.Error(t, err, "expected error didnot receive")
+		assert.Equal(t, expErr, err.Error())
+	}
+
+	t.Log("when date is valid it returns converted date")
+	{
+		date := "2079-05-02"
+
+		eDate, err := convertNtoE(date)
+		assert.NoError(t, err)
+		assert.Equal(t, "2022-08-18", eDate)
+	}
+
+	t.Log("when nepali date 2067-05-02 is converted it returns 2010-08-18")
+	{
+		date := "2067-05-02"
+
+		eDate, err := convertNtoE(date)
+		assert.NoError(t, err)
+		assert.Equal(t, "2010-08-18", eDate)
+	}
+}
+
 func Test_DateConverter(t *testing.T) {
 	t.Log("when argument does not have two values it returns error")
 	{
@@ -53,13 +83,11 @@ func Test_DateConverter(t *testing.T) {
 			assert.NoError(t, err, "unxpected error")
 		}
 
-		t.Log("when first argument is nte it returns not impleted error")
+		t.Log("when first argument is nte it converts nepali to english date")
 		{
 			args := []string{"nte", "2079-05-02"}
 			err := dateConvert(args)
-			assert.Error(t, err, "expected error")
-
-			assert.Equal(t, err.Error(), "nte is not implemented")
+			assert.NoError(t, err, "unexpected error")
 		}
 
 	}

@@ -1,6 +1,6 @@
 # CalendarN
 
-CalendarN is a powerful CLI tool for working with Nepali (Bikram Sambat) and English (Gregorian) calendars. Convert dates, view calendars, track countdowns, and more!
+A powerful CLI tool for working with Nepali (Bikram Sambat) and English (Gregorian) calendars.
 
 [![codecov](https://codecov.io/gh/samit22/calendarN/branch/main/graph/badge.svg?token=A5XND1948Y)](https://codecov.io/gh/samit22/calendarN)
 [![goreport](https://goreportcard.com/badge/github.com/samit22/calendarN)](https://goreportcard.com/report/github.com/samit22/calendarN)
@@ -9,37 +9,60 @@ CalendarN is a powerful CLI tool for working with Nepali (Bikram Sambat) and Eng
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=samit22_calendarN&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=samit22_calendarN)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=samit22_calendarN&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=samit22_calendarN)
 
+## Quick Start
+
+```bash
+# Install via Homebrew
+brew tap samit22/calendarN https://github.com/samit22/calendarN
+brew install calendarn
+
+# View today's date
+calendarN today
+
+# Convert English to Nepali
+calendarN convert etn 2024-12-25
+
+# Convert Nepali to English
+calendarN convert nte 2081-09-10
+```
+
+## Table of Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Today](#today)
+  - [Calendars](#calendars)
+  - [Date Conversion](#date-conversion)
+  - [Countdown](#countdown)
+- [Supported Date Range](#supported-date-range)
+- [Development](#development)
+- [Contributing](#contributing)
+- [License](#license)
+
 ## Features
 
-- 📅 View Nepali (BS) and English calendars
-- 🔄 Convert dates between Nepali and English
-- ⏱️ Create and manage countdowns
-- 📊 Track year progress with visual progress bars
-- 🎨 Beautiful terminal output with colors
+| Feature | Description |
+|---------|-------------|
+| View Calendars | Display Nepali (BS) and English calendars |
+| Date Conversion | Convert dates between Nepali and English (both directions) |
+| Countdowns | Create and manage countdowns to important dates |
+| Year Progress | Track year progress with visual progress bars |
+| Beautiful Output | Colorful terminal output with Devanagari support |
 
 ## Installation
 
-### Homebrew (macOS/Linux)
-
-The easiest way to install calendarN on macOS or Linux:
+### Homebrew (Recommended)
 
 ```bash
-# Add the tap
 brew tap samit22/calendarN https://github.com/samit22/calendarN
-
-# Install calendarN
 brew install calendarn
-```
 
-To upgrade to the latest version:
-
-```bash
+# Upgrade to latest
 brew upgrade calendarn
 ```
 
 ### Go Install
-
-If you have Go installed (1.21+):
 
 ```bash
 go install github.com/samit22/calendarN@latest
@@ -54,164 +77,122 @@ make build
 ./calendarN --help
 ```
 
-### Manual Installation
+### Manual Download
 
-Download the latest release from the [Releases page](https://github.com/samit22/calendarN/releases) for your platform.
+Download the latest release from the [Releases page](https://github.com/samit22/calendarN/releases).
 
-## Commands
+## Usage
 
 ### Today
 
-Get today's date in both Nepali and English with year progress:
+Display today's date in both Nepali and English with year progress.
 
 ```bash
-calendarN today
+calendarN today           # Full output with progress bar
+calendarN today -m        # Minified output
+calendarN today -j        # JSON format
 ```
 
-**Flags:**
-- `-m, --minified` - Minified date output
-- `-j, --json` - Output in JSON format
-
-```bash
-# Minified output
-calendarN today -m
-
-# JSON output
-calendarN today -j
+**Example Output:**
 ```
-
-### Nepali Calendar (nep)
-
-View the Nepali calendar:
-
-```bash
-# Current month
-calendarN nep
-
-# Specific year and month (BS)
-calendarN nep 2081-09
-```
-
-### English Calendar (eng)
-
-View the English calendar:
-
-```bash
-# Current month
-calendarN eng
-
-# Specific year and month
-calendarN eng 2024-12
-```
-
-### Date Conversion (convert)
-
-Convert dates between English and Nepali:
-
-```bash
-# English to Nepali
-calendarN convert etn 2024-12-25
-# Output: Eng: 2024-12-25 => 2081-09-10 || २०८१-०९-१०
-```
-
-### Countdown
-
-Create and manage countdowns to important dates:
-
-```bash
-# Create a countdown
-calendarN countdown 2025-01-01
-
-# Create with a name and save it
-calendarN countdown -n "New Year" 2025-01-01 -s
-
-# With specific time
-calendarN countdown -n "Meeting" 2025-01-15 14:30:00 -s
-```
-
-**Flags:**
-- `-n, --name` - Name for the countdown (random if not provided)
-- `-r, --run` - Run countdown for n seconds (default: 5, use -1 for infinite)
-- `-s, --save` - Save the countdown for later
-- `-o, --overwrite` - Overwrite existing countdown with same name
-
-**Managing saved countdowns:**
-
-```bash
-# List all saved countdowns
-calendarN countdown all
-
-# Show a specific countdown
-calendarN countdown show -n "New Year"
-
-# Delete a countdown
-calendarN countdown delete -n "New Year"
-```
-
-### Version
-
-Check the installed version:
-
-```bash
-calendarN version
-```
-
-## Examples
-
-### View Today's Date
-
-```bash
 $ calendarN today -m
 बुधवार, २५ पुष, २०८१ | Wednesday, 25 December, 2024
 ```
 
-### Convert a Date
+### Calendars
+
+#### Nepali Calendar
+
+```bash
+calendarN nep             # Current month
+calendarN nep 2081-09     # Specific year and month (BS)
+```
+
+#### English Calendar
+
+```bash
+calendarN eng             # Current month
+calendarN eng 2024-12     # Specific year and month
+```
+
+### Date Conversion
+
+Convert dates between English (Gregorian) and Nepali (Bikram Sambat) calendars.
+
+#### English to Nepali (etn)
 
 ```bash
 $ calendarN convert etn 2024-12-25
 Eng: 2024-12-25 => 2081-09-10 || २०८१-०९-१०
 ```
 
-### Create a Birthday Countdown
+#### Nepali to English (nte)
 
 ```bash
-$ calendarN countdown -n "Birthday" 2025-08-15 -s -r 10
-Countdown for: Birthday
-45 days 12 hours 30 minutes 15 seconds
+$ calendarN convert nte 2081-09-10
+Nep: 2081-09-10 => 2024-12-25
+```
+
+### Countdown
+
+Create and manage countdowns to important dates.
+
+#### Create Countdown
+
+```bash
+calendarN countdown 2025-01-01                       # Quick countdown
+calendarN countdown -n "New Year" 2025-01-01 -s      # Named and saved
+calendarN countdown -n "Meeting" 2025-01-15 14:30:00 -s  # With time
+```
+
+**Flags:**
+
+| Flag | Description |
+|------|-------------|
+| `-n, --name` | Name for the countdown |
+| `-r, --run` | Run for n seconds (default: 5, use -1 for infinite) |
+| `-s, --save` | Save the countdown |
+| `-o, --overwrite` | Overwrite existing countdown |
+
+#### Manage Countdowns
+
+```bash
+calendarN countdown all              # List all saved
+calendarN countdown show -n "Name"   # Show specific
+calendarN countdown delete -n "Name" # Delete
+```
+
+### Version
+
+```bash
+calendarN version
 ```
 
 ## Supported Date Range
 
-- **Nepali (BS):** 2000 BS to 2090 BS
-- **English:** 1944 AD onwards (corresponding to the BS range)
-
-## Requirements
-
-- Go 1.21+ (for building from source)
-- macOS, Linux, or Windows (x86_64 or ARM64)
+| Calendar | Range |
+|----------|-------|
+| Nepali (BS) | 2000 BS - 2090 BS |
+| English (AD) | 1944 AD onwards |
 
 ## Development
 
 ```bash
-# Clone the repository
 git clone https://github.com/samit22/calendarN.git
 cd calendarN
 
-# Run tests
-make test
-
-# Build
-make build
-
-# Cross-compile for all platforms
-make release-all
+make test         # Run tests
+make build        # Build binary
+make release-all  # Cross-compile for all platforms
 ```
+
+**Requirements:** Go 1.21+
 
 ## Contributing
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Make sure your code has adequate test coverage (80%+)
+3. Ensure test coverage is adequate (80%+)
 4. Commit your changes (`git commit -m 'Add amazing feature'`)
 5. Push to the branch (`git push origin feature/amazing-feature`)
 6. Open a Pull Request
@@ -220,7 +201,7 @@ For bugs or feature requests, please [create an issue](https://github.com/samit2
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License - see [LICENSE](LICENSE) for details.
 
 ## Author
 

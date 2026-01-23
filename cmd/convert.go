@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/samit22/calendarN/dateconv"
-	"github.com/samit22/calendarN/logger"
 	"github.com/spf13/cobra"
 )
 
@@ -33,8 +32,8 @@ func dateConvert(args []string) error {
 		_, err := converEtoN(args[1])
 		return err
 	case "nte":
-		log.PrintColor(logger.Red, "To be implemented!!\n")
-		return fmt.Errorf("nte is not implemented")
+		_, err := convertNtoE(args[1])
+		return err
 	default:
 		log.Errorf("invalid argument use etn | nte")
 		return fmt.Errorf("argument is neither `etn` nor `nte`")
@@ -49,6 +48,17 @@ func converEtoN(d string) (string, error) {
 	}
 	log.Successf("Eng: %s => %s  || %s\n", d, nDate.RomanFullDate(), nDate.DevanagariFullDate())
 	return nDate.RomanFullDate(), nil
+}
+
+func convertNtoE(d string) (string, error) {
+	dc := dateconv.Converter{}
+	eDate, err := dc.NtoE(d)
+	if err != nil {
+		return "", err
+	}
+	engDateStr := eDate.Format("2006-01-02")
+	log.Successf("Nep: %s => %s\n", d, engDateStr)
+	return engDateStr, nil
 }
 
 func init() {
