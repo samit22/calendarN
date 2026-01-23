@@ -12,8 +12,11 @@ func Test_getNepToday(t *testing.T) {
 		d := getNepToday()
 		tn := time.Now()
 
-		if d.Year() != tn.Year()+57 {
-			t.Errorf("should have received accurate date")
+		// Nepali year is 56-57 years ahead of English year
+		// Before Nepali new year (mid-April) it's +56, after it's +57
+		diff := d.Year() - tn.Year()
+		if diff != 56 && diff != 57 {
+			t.Errorf("should have received accurate date, got diff: %d", diff)
 		}
 	}
 }
